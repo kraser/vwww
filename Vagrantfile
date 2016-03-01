@@ -24,37 +24,31 @@ Vagrant.configure(2) do |config|
   cpus = 2
   memb = 1024
 
-  # if ENV['VAGRANT_DEFAULT_PROVIDER'] == 'parallels'
-  # https://github.com/mitchellh/vagrant/issues/1867
-  if defined? VagrantPlugins::Parallels
     # Every Vagrant development environment requires a box. You can search for
     # boxes at https://atlas.hashicorp.com/search.
-    config.vm.box = "parallels/ubuntu-14.04"
+    config.vm.box = "hashicorp/precise64"
 
     # Provider-specific configuration so you can fine-tune various
     # backing providers for Vagrant. These expose provider-specific options.
-    config.vm.provider "parallels" do |prl|
+    config.vm.provider :parallels do |prl, override|
+      override.vm.box = "parallels/ubuntu-14.04"
       prl.name = "www"
       prl.linked_clone = true
       prl.update_guest_tools = false
       prl.memory = memb
       prl.cpus = cpus
     end
-  else
-    config.vm.box = "hashicorp/precise64"
+
     config.vm.provider :virtualbox do |vb|
-      vb.customize ["modifyvm", :id, "--cpus", "{cpus}" ]
-      vb.customize ["modifyvm", :id, "--memory", "{memb}"]
+      vb.customize ["modifyvm", :id, "--cpus", cpus ]
+      vb.customize ["modifyvm", :id, "--memory", memb ]
     end
-  end
 
   if Vagrant.has_plugin?("vagrant-cachier")
-    # Configure cached packages to be shared between instances of the same base box.
     # More info on http://fgrehm.viewdocs.io/vagrant-cachier/usage
     config.cache.scope = :box
+    # check cache size `du -h -d0 $HOME/.vagrant.d/cache`
   end
-
-  # vagrant_version = Vagrant::VERSION.sub(/^v/, '')
 
   # defaults to the containing folder name
   # config.vm.hostname = "www-dev"
