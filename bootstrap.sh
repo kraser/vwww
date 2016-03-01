@@ -26,3 +26,4 @@ sudo mv composer.phar /usr/local/bin/composer
 #   sudo rm -rf /var/www
 #   sudo ln -fs /vagrant_www /var/www
 # fi
+
