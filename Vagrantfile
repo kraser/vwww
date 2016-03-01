@@ -1,6 +1,14 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+# help from https://github.com/Varying-Vagrant-Vagrants/VVV
+# more help from http://24ways.org/2014/what-is-vagrant-and-why-should-i-care/
+# and https://github.com/Chassis/Chassis
+# and https://coderwall.com/p/skazcg/avoid-syncing-wp-content-uploads
+# https://github.com/gau1991/easyengine-vagrant
+# https://github.com/videoMonkey/vagrant-lamp
+# https://nodesource.com/blog/nodejs-v012-iojs-and-the-nodesource-linux-repositories
+# https://bitbucket.org/mmcmedia/asdika-web/commits/a91174541e0b4df286860ad699aec0640c52e9f0
 
 vagrant_dir = File.expand_path(File.dirname(__FILE__))
 
@@ -13,31 +21,43 @@ Vagrant.configure(2) do |config|
   # For a complete reference, please see the online documentation at
   # https://docs.vagrantup.com.
 
-  # Every Vagrant development environment requires a box. You can search for
-  # boxes at https://atlas.hashicorp.com/search.
-  config.vm.box = "parallels/ubuntu-14.04"
+  cpus = 2
+  memb = 1024
 
-  # Provider-specific configuration so you can fine-tune various
-  # backing providers for Vagrant. These expose provider-specific options.
-  config.vm.provider "parallels" do |prl|
-    prl.name = "www"
-    prl.linked_clone = true
-    prl.update_guest_tools = false
-    prl.memory = 1024
-    prl.cpus = 2
+  # if ENV['VAGRANT_DEFAULT_PROVIDER'] == 'parallels'
+  # https://github.com/mitchellh/vagrant/issues/1867
+  if defined? VagrantPlugins::Parallels
+    # Every Vagrant development environment requires a box. You can search for
+    # boxes at https://atlas.hashicorp.com/search.
+    config.vm.box = "parallels/ubuntu-14.04"
+
+    # Provider-specific configuration so you can fine-tune various
+    # backing providers for Vagrant. These expose provider-specific options.
+    config.vm.provider "parallels" do |prl|
+      prl.name = "www"
+      prl.linked_clone = true
+      prl.update_guest_tools = false
+      prl.memory = memb
+      prl.cpus = cpus
+    end
+  else
+    config.vm.box = "hashicorp/precise64"
+    config.vm.provider :virtualbox do |vb|
+      vb.customize ["modifyvm", :id, "--cpus", "{cpus}" ]
+      vb.customize ["modifyvm", :id, "--memory", "{memb}"]
+    end
   end
 
-
-# TODO: detect absence of Parallels and offer alternate box and config for virtualbox
-  # config.vm.box = "hashicorp/precise64"
-  # config.vm.provider :virtualbox do |vb|
-  #   vb.customize ["modifyvm", :id, "--cpus", "2" ]
-  #   vb.customize ["modifyvm", :id, "--memory", "1024"]
-  # end
+  if Vagrant.has_plugin?("vagrant-cachier")
+    # Configure cached packages to be shared between instances of the same base box.
+    # More info on http://fgrehm.viewdocs.io/vagrant-cachier/usage
+    config.cache.scope = :box
+  end
 
   # vagrant_version = Vagrant::VERSION.sub(/^v/, '')
 
-  # config.vm.hostname = "jamie-www-dev"
+  # defaults to the containing folder name
+  # config.vm.hostname = "www-dev"
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -51,13 +71,13 @@ Vagrant.configure(2) do |config|
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
-  #config.vm.network "private_network"#, ip: "192.168.33.10"
+  # config.vm.network "private_network"
 
   # Share an additional folder to the guest VM. The first argument is
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  config.vm.synced_folder "../../sites", "/vagrant_data", owner: "www-data", group: "www-data"
+  config.vm.synced_folder "../../sites", "/vagrant_www", owner: "www-data", group: "www-data"
 
   # Define a Vagrant Push strategy for pushing to Atlas. Other push strategies
   # such as FTP and Heroku are also available. See the documentation at
@@ -74,6 +94,14 @@ Vagrant.configure(2) do |config|
   #   sudo apt-get install -y apache2
   # SHELL
 
+  config.vm.provision "file", source: "~/.bash_profile", destination: "~/.bash_profile"
+
   config.vm.provision :shell, path: "bootstrap.sh"
+
+  ## Our symlinked Apache VirtualHost doesn't exist when apache is installed
+  ## this ensures that the config file is picked up later
+  # config.vm.provision "shell", inline: "service apache2 restart", run: "always"
+  # config.vm.provision :shell, inline: "sudo service mysql restart", run: "always"
+  # TODO: vagrant triggers to dump db
 
 end
