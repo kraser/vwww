@@ -10,13 +10,16 @@
 # https://nodesource.com/blog/nodejs-v012-iojs-and-the-nodesource-linux-repositories
 # https://bitbucket.org/mmcmedia/asdika-web/commits/a91174541e0b4df286860ad699aec0640c52e9f0
 
-vagrant_dir = File.expand_path(File.dirname(__FILE__))
+ENV["LC_ALL"] = "en_US.UTF-8"
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 Vagrant.configure(2) do |config|
+
+  Vagrant.require_version ">= 1.8.0"
+
   # The most common configuration options are documented and commented below.
   # For a complete reference, please see the online documentation at
   # https://docs.vagrantup.com.
@@ -24,25 +27,26 @@ Vagrant.configure(2) do |config|
   cpus = 2
   memb = 1024
 
-    # Every Vagrant development environment requires a box. You can search for
-    # boxes at https://atlas.hashicorp.com/search.
-    config.vm.box = "hashicorp/precise64"
+  # Every Vagrant development environment requires a box. You can search for
+  # boxes at https://atlas.hashicorp.com/search.
+  config.vm.box = "ubuntu/trusty64"
 
-    # Provider-specific configuration so you can fine-tune various
-    # backing providers for Vagrant. These expose provider-specific options.
-    config.vm.provider :parallels do |prl, override|
-      override.vm.box = "parallels/ubuntu-14.04"
-      prl.name = "www"
-      prl.linked_clone = true
-      prl.update_guest_tools = false
-      prl.memory = memb
-      prl.cpus = cpus
-    end
 
-    config.vm.provider :virtualbox do |vb|
-      vb.customize ["modifyvm", :id, "--cpus", cpus ]
-      vb.customize ["modifyvm", :id, "--memory", memb ]
-    end
+  # Provider-specific configuration so you can fine-tune various
+  # backing providers for Vagrant. These expose provider-specific options.
+  config.vm.provider :parallels do |prl, override|
+    override.vm.box = "parallels/ubuntu-14.04"
+    prl.name = "www"
+    prl.linked_clone = true
+    prl.update_guest_tools = false
+    prl.memory = memb
+    prl.cpus = cpus
+  end
+
+  config.vm.provider :virtualbox do |vb|
+    vb.customize ["modifyvm", :id, "--cpus", cpus ]
+    vb.customize ["modifyvm", :id, "--memory", memb ]
+  end
 
   if Vagrant.has_plugin?("vagrant-cachier")
     # More info on http://fgrehm.viewdocs.io/vagrant-cachier/usage
@@ -61,7 +65,8 @@ Vagrant.configure(2) do |config|
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
-  # config.vm.network "forwarded_port", guest: 80, host: 8080
+  config.vm.network :forwarded_port, guest: 3306, host: 3306
+  config.vm.network :forwarded_port, guest: 80, host: 8080
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
