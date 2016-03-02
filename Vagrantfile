@@ -29,14 +29,14 @@ Vagrant.configure(2) do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
-  config.vm.box = "ubuntu/trusty64"
+  config.vm.box = "ubuntu/trusty32"
 
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
   config.vm.provider :parallels do |prl, override|
-    override.vm.box = "parallels/ubuntu-14.04"
-    prl.name = "www"
+    override.vm.box = "parallels/ubuntu-14.04-i386"
+    prl.name = "vagrant-www"
     prl.linked_clone = true
     prl.update_guest_tools = false
     prl.memory = memb
@@ -55,7 +55,7 @@ Vagrant.configure(2) do |config|
   end
 
   # defaults to the containing folder name
-  # config.vm.hostname = "www-dev"
+  config.vm.hostname = "vagrant-www"
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
