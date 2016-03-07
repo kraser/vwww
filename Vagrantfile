@@ -1,52 +1,99 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-# help from https://github.com/Varying-Vagrant-Vagrants/VVV
-# more help from http://24ways.org/2014/what-is-vagrant-and-why-should-i-care/
-# and https://github.com/Chassis/Chassis
-# and https://coderwall.com/p/skazcg/avoid-syncing-wp-content-uploads
+# help from:
+# https://github.com/Varying-Vagrant-Vagrants/VVV
+# http://24ways.org/2014/what-is-vagrant-and-why-should-i-care/
+# https://github.com/Chassis/Chassis
+# https://coderwall.com/p/skazcg/avoid-syncing-wp-content-uploads
 # https://github.com/gau1991/easyengine-vagrant
 # https://github.com/videoMonkey/vagrant-lamp
 # https://nodesource.com/blog/nodejs-v012-iojs-and-the-nodesource-linux-repositories
 # https://bitbucket.org/mmcmedia/asdika-web/commits/a91174541e0b4df286860ad699aec0640c52e9f0
 
+# a few vars
 ENV["LC_ALL"] = "en_US.UTF-8"
+dir = Dir.pwd
+vagrant_dir = File.expand_path(File.dirname(__FILE__))
+vagrant_name = File.basename(dir)
+vagrant_version = Vagrant::VERSION.sub(/^v/, '')
+v_cpus = 2
+v_memb = 1024
 
-# All Vagrant configuration is done below. The "2" in Vagrant.configure
-# configures the configuration version (we support older styles for
-# backwards compatibility). Please don't change it unless you know what
-# you're doing.
+# and lets go!
 Vagrant.configure(2) do |config|
 
   Vagrant.require_version ">= 1.8.0"
+  config.vm.box = "ubuntu/trusty64"
+  config.vm.hostname = "vagrant-www"
 
-  # The most common configuration options are documented and commented below.
-  # For a complete reference, please see the online documentation at
-  # https://docs.vagrantup.com.
-
-  cpus = 2
-  memb = 1024
-
-  # Every Vagrant development environment requires a box. You can search for
-  # boxes at https://atlas.hashicorp.com/search.
-  config.vm.box = "ubuntu/trusty32"
-
-
-  # Provider-specific configuration so you can fine-tune various
-  # backing providers for Vagrant. These expose provider-specific options.
-  config.vm.provider :parallels do |prl, override|
-    override.vm.box = "parallels/ubuntu-14.04-i386"
-    prl.name = "vagrant-www"
-    prl.linked_clone = true
-    prl.update_guest_tools = false
-    prl.memory = memb
-    prl.cpus = cpus
+  config.vm.provider :virtualbox do |vm|
+    vm.customize ["modifyvm", :id, "--cpus", v_cpus ]
+    vm.customize ["modifyvm", :id, "--memory", v_memb ]
+    vm.name = vagrant_name
   end
 
-  config.vm.provider :virtualbox do |vb|
-    vb.customize ["modifyvm", :id, "--cpus", cpus ]
-    vb.customize ["modifyvm", :id, "--memory", memb ]
+  config.vm.provider :parallels do |vm, override|
+    override.vm.box = "parallels/ubuntu-14.04"
+    vm.name = vagrant_name
+    vm.linked_clone = true
+    vm.update_guest_tools = true
+    vm.memory = v_memb
+    vm.cpus = v_cpus
   end
+
+  config.vm.provider :vmware_fusion do |vm, override|
+    override.vm.box = "netsensia/ubuntu-trusty64"
+    vm.vmx["memsize"] = v_memb
+    vm.vmx["numvcpus"] = v_cpus
+  end
+
+  config.vm.provider :vmware_workstation do |vm, override|
+    override.vm.box = "netsensia/ubuntu-trusty64"
+  end
+
+  config.vm.provider :hyperv do |vm, override|
+    override.vm.box = "ericmann/trusty64"
+    vm.memory = v_memb
+    vm.cpus = v_cpus
+  end
+
+  # SSH Agent Forwarding
+  # Enable agent forwarding on vagrant ssh commands. This allows you to use ssh keys
+  # on your host machine inside the guest. See the manual for `ssh-add`.
+  config.ssh.forward_agent = true
+
+  # Customfile - POSSIBLY UNSTABLE
+  #
+  # Use this to insert your own (and possibly rewrite) Vagrant config lines. Helpful
+  # for mapping additional drives. If a file 'Customfile' exists in the same directory
+  # as this Vagrantfile, it will be evaluated as ruby inline as it loads.
+  #
+  # Note that if you find yourself using a Customfile for anything crazy or specifying
+  # different provisioning, then you may want to consider a new Vagrantfile entirely.
+  if File.exists?(File.join(vagrant_dir,'Customfile')) then
+    eval(IO.read(File.join(vagrant_dir,'Customfile')), binding)
+  end
+
+  config.vm.provision "shell", inline: <<-SHELL
+    sudo aptitude update
+    sudo aptitude install --assume-yes puppet software-properties-common vim \
+      curl python-software-properties language-pack-en-base build-essential \
+      ntp debconf-utils
+    sudo gem install librarian-puppet
+  SHELL
+
+  # Provisioning
+  config.vm.provision :puppet do |puppet|
+    puppet.manifests_path = "puppet/manifests"
+    puppet.module_path = "puppet/modules"
+    puppet.manifest_file  = "default.pp"
+    puppet.options="--verbose --debug"
+  end
+
+  config.vm.provision "file", source: "~/.bash_profile", destination: "~/.bash_profile"
+
+  # TODO: vagrant triggers to dump db
 
   if Vagrant.has_plugin?("vagrant-cachier")
     # More info on http://fgrehm.viewdocs.io/vagrant-cachier/usage
@@ -54,54 +101,5 @@ Vagrant.configure(2) do |config|
     # check cache size `du -h -d0 $HOME/.vagrant.d/cache`
   end
 
-  # defaults to the containing folder name
-  config.vm.hostname = "vagrant-www"
-
-  # Disable automatic box update checking. If you disable this, then
-  # boxes will only be checked for updates when the user runs
-  # `vagrant box outdated`. This is not recommended.
-  # config.vm.box_check_update = false
-
-  # Create a forwarded port mapping which allows access to a specific port
-  # within the machine from a port on the host machine. In the example below,
-  # accessing "localhost:8080" will access port 80 on the guest machine.
-  config.vm.network :forwarded_port, guest: 3306, host: 3306
-  config.vm.network :forwarded_port, guest: 80, host: 8080
-
-  # Create a private network, which allows host-only access to the machine
-  # using a specific IP.
-  # config.vm.network "private_network"
-
-  # Share an additional folder to the guest VM. The first argument is
-  # the path on the host to the actual folder. The second argument is
-  # the path on the guest to mount the folder. And the optional third
-  # argument is a set of non-required options.
-  # config.vm.synced_folder "../../sites", "/ioboard/html", owner: "www-data", group: "www-data"
-  config.vm.synced_folder "conf", "/apache_conf", owner: "www-data", group: "www-data"
-
-  # Define a Vagrant Push strategy for pushing to Atlas. Other push strategies
-  # such as FTP and Heroku are also available. See the documentation at
-  # https://docs.vagrantup.com/v2/push/atlas.html for more information.
-  # config.push.define "atlas" do |push|
-  #   push.app = "YOUR_ATLAS_USERNAME/YOUR_APPLICATION_NAME"
-  # end
-
-  # Enable provisioning with a shell script. Additional provisioners such as
-  # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
-  # documentation for more information about their specific syntax and use.
-  # config.vm.provision "shell", inline: <<-SHELL
-  #   sudo apt-get update
-  #   sudo apt-get install -y apache2
-  # SHELL
-
-  config.vm.provision "file", source: "~/.bash_profile", destination: "~/.bash_profile"
-
-  config.vm.provision :shell, path: "bootstrap.sh"
-
-  ## Our symlinked Apache VirtualHost doesn't exist when apache is installed
-  ## this ensures that the config file is picked up later
-  # config.vm.provision "shell", inline: "service apache2 restart", run: "always"
-  # config.vm.provision :shell, inline: "sudo service mysql restart", run: "always"
-  # TODO: vagrant triggers to dump db
 
 end

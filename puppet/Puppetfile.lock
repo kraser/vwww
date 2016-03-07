@@ -5,6 +5,12 @@ FORGE
       puppetlabs-stdlib (< 5.0.0, >= 4.5.0)
     puppetlabs-stdlib (4.11.0)
 
+GITHUBTARBALL
+  remote: puppetlabs/puppetlabs-apache
+  specs:
+    puppetlabs-apache (0.6.0)
+
 DEPENDENCIES
+  puppetlabs-apache (= 0.6.0)
   puppetlabs-apt (>= 0)
 

@@ -26,6 +26,9 @@ class php5::install($db_binding = false) {
   package { "php5-curl":
       require => Package["curl"]
   }
+  package { "curl":
+    ensure  => present,
+  }
   case $db_binding {
       "mysql":        { package { "php5-mysql": ensure => latest } }
       "postgresql":   { package { "php5-pgsql": ensure => latest } }

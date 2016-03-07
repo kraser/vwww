@@ -18,10 +18,10 @@ class { 'php5::install': }
 # class { 'phpqa::install': }
 
 
-# package { "apache2":
-#   ensure  => present,
-#   require => Exec["apt-get update"],
-# }
+package { "curl":
+  ensure  => present,
+  # require => Exec["apt-get update"],
+}
 
 # package { 'git':
 #   ensure => present,

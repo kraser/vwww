@@ -21,7 +21,9 @@ sudo aptitude install --assume-yes software-properties-common vim curl \
 LC_ALL=en_US.UTF-8 sudo add-apt-repository -y ppa:ondrej/php5-5.6
 echo '### Installing apache2 and php5'
 sudo aptitude update
-sudo aptitude install --assume-yes apache2 php5-cli php5-curl php5-mcrypt php5-gd php5-redis
+sudo aptitude install --assume-yes apache2 libapache2-mod-php5 php5-cli php5-curl \
+  php5-mcrypt php5-gd php5-redis php-apc supervisor php-pear bzip2 \
+  mysql-client mysql-server
 
 a2enmod rewrite
 
