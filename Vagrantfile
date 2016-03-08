@@ -34,18 +34,17 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provider :parallels do |vm, override|
-    override.vm.box = "parallels/ubuntu-14.04"
-    vm.name = vagrant_name
-    vm.linked_clone = true
-    vm.update_guest_tools = true
     vm.memory = v_memb
     vm.cpus = v_cpus
+    vm.name = vagrant_name
+    vm.update_guest_tools = false
+    override.vm.box = "parallels/ubuntu-14.04"
   end
 
   config.vm.provider :vmware_fusion do |vm, override|
-    override.vm.box = "netsensia/ubuntu-trusty64"
     vm.vmx["memsize"] = v_memb
     vm.vmx["numvcpus"] = v_cpus
+    override.vm.box = "netsensia/ubuntu-trusty64"
   end
 
   config.vm.provider :vmware_workstation do |vm, override|
@@ -53,15 +52,10 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provider :hyperv do |vm, override|
-    override.vm.box = "ericmann/trusty64"
     vm.memory = v_memb
     vm.cpus = v_cpus
+    override.vm.box = "ericmann/trusty64"
   end
-
-  # SSH Agent Forwarding
-  # Enable agent forwarding on vagrant ssh commands. This allows you to use ssh keys
-  # on your host machine inside the guest. See the manual for `ssh-add`.
-  config.ssh.forward_agent = true
 
   # Customfile - POSSIBLY UNSTABLE
   #
@@ -75,12 +69,10 @@ Vagrant.configure(2) do |config|
     eval(IO.read(File.join(vagrant_dir,'Customfile')), binding)
   end
 
+  # Some boxes come with puppet installed, others don't
+  # so here we quickly install it.
   config.vm.provision "shell", inline: <<-SHELL
-    sudo aptitude update
-    sudo aptitude install --assume-yes puppet software-properties-common vim \
-      curl python-software-properties language-pack-en-base build-essential \
-      ntp debconf-utils
-    sudo gem install librarian-puppet
+    sudo aptitude install --assume-yes puppet
   SHELL
 
   # Provisioning
@@ -90,8 +82,6 @@ Vagrant.configure(2) do |config|
     puppet.manifest_file  = "default.pp"
     puppet.options="--verbose --debug"
   end
-
-  config.vm.provision "file", source: "~/.bash_profile", destination: "~/.bash_profile"
 
   # TODO: vagrant triggers to dump db
 

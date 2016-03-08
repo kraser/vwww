@@ -6,4 +6,4 @@ The `Vagrantfile` can be overidden or further customized by including a file nam
 
 **DO NOT MAKE SERVER CONFIGURATION CHANGES THROUGH SSH.** Update the appropriate puppet file and run `vagrant provision`. Ask me if you're confused about puppet.
 
-You can build the puppet stuff (which requires [puppet](https://docs.puppetlabs.com) and librarian-puppet(http://librarian-puppet.com/)) from the vagrant machine, or you can install those tools on your local computer.
+You can build the puppet stuff (which requires [puppet](https://docs.puppetlabs.com) and librarian-puppet(http://librarian-puppet.com/)) from the vagrant machine.
