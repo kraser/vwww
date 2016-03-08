@@ -9,11 +9,6 @@ exec { "apt-update":
   # path => "/usr/bin", # unecessary after about trick.
 }
 
-# exec { "librarian-puppet":
-#   command => 'gem install librarian-puppet',
-#   require => Package['ruby1.9.1-dev'],
-# }
-
 package { "build-essential":
     ensure => latest
 }
@@ -22,7 +17,7 @@ package { [
         "python-software-properties",
         "software-properties-common",
         "language-pack-en-base",
-#        "ruby1.9.1-dev",
+        "ruby1.9.1-dev",
         "aptitude",
         "vim",
         "curl",
@@ -33,7 +28,31 @@ package { [
     require => Exec["apt-update"]
 }
 
+# exec { "librarian-puppet":
+#   command => 'gem install librarian-puppet',
+#   require => Package['ruby1.9.1-dev'],
+# }
 
+package { 'librarian-puppet':
+  ensure   => 'installed',
+  provider => 'gem',
+  require => Package["ruby1.9.1-dev"]
+}
+
+exec { "ppa:ondrej/php5-5.6":
+  command => 'add-apt-repository -y ppa:ondrej/php5-5.6',
+  require => Package['software-properties-common'],
+}
+
+package { [
+        "php5-mcrypt",
+        "php5-redis",
+        "php5-cli",
+        "php5",
+    ]:
+    ensure => latest,
+    require => Exec["apt-update", 'ppa:ondrej/php5-5.6']
+}
 
 # class { 'git::install': }
 # class { 'subversion::install': }
@@ -45,20 +64,10 @@ package { [
 # class { 'composer::install': }
 # class { 'phpqa::install': }
 
-
-# package { "curl":
-#   ensure  => present,
-#   # require => Exec["apt-get update"],
-# }
-
-# package { 'git':
-#   ensure => present,
-# }
-
-# service { "apache2":
-#   ensure  => "running",
-#   require => Package["apache2"],
-# }
+service { "ntp":
+  ensure  => "running",
+  require => Package["ntp"],
+}
 # file { "/var/www/site1":
 #   ensure  => "link",
 #   target  => "/vagrant/site1",
