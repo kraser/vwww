@@ -1,55 +1,63 @@
-class ondrejppa {
-    include apt
+class ondrejppa_php56 {
 
-    apt::ppa { "ppa:ondrej/php5":
-        ensure => present
-    }
+  # add the right php repo
+  exec { "ondrejppa_php56":
+   command => 'add-apt-repository -y ppa:ondrej/php5-5.6',
+   require => Package["python-software-properties"],
+  }
+
+  # Refreshes the list of packages
+  exec { 'php56-apt-update':
+    command => 'apt-get update',
+    require => Exec['ondrejppa_php56'],
+  }
+
 }
 
-class php5::install($db_binding = false) {
-  require ondrejppa
+class php5::install {
+
+  require ondrejppa_php56
+
+  # the php packages we need.
   package { [
-      'libapache2-mod-php5',
+      "libapache2-mod-php5",
+      "php5-memcache",
+      "php5-imagick",
+      "php5-common",
       'php5-xdebug',
-      'php5-mcrypt',
-      'php5-mysql',
-      'php5-redis',
-      'php5-fpm',
-      'php5-dev',
-      'php5-cli',
-      'php5-gd',
-      'php5',
+      "php5-mcrypt",
+      "php5-mysql",
+      "php5-redis",
+      "php5-ldap",
+      "php5-imap",
+      "php5-apcu",
+      "php-pear",
+      "php5-cli",
+      "php5-dev",
+      "php5-gd",
+      "php5",
     ]:
     ensure => latest,
-    require => Class['ondrejppa'],
+    require => Class["ondrejppa_php56"],
   }
+
   package { "php5-curl":
-      require => Package["curl"]
-  }
-  package { "curl":
-    ensure  => present,
-  }
-  case $db_binding {
-      "mysql":        { package { "php5-mysql": ensure => latest } }
-      "postgresql":   { package { "php5-pgsql": ensure => latest } }
+    ensure => latest,
+    require => [
+      Package["curl"],
+      Class['ondrejppa_php56']
+    ],
   }
 
-}
+  # some other services that we need
+  package { [
+          "imagemagick",
+          "memcached",
+          "postfix",
+          "gettext",
+      ]:
+      ensure => latest,
+      require => Exec["apt-update"]
+  }
 
-class php::composer {
-    exec { "get-composer":
-        command => "curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/local/bin/composer",
-        user => "root",
-        creates => "/usr/local/bin/composer",
-        require => [
-            Class["php"],
-            Package["curl"]
-        ],
-    }
-
-    file { "set-composer-execute-permissions":
-        path => "/usr/local/bin/composer",
-        mode => 755,
-        require => Exec["get-composer"]
-    }
 }

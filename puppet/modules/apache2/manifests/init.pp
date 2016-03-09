@@ -1,7 +1,7 @@
 class apache2::install {
   package { "apache2":
     ensure  => present,
-    require => Exec["apt-get update"],
+    require => Exec["apt-update"],
   }
 
   service { "apache2":

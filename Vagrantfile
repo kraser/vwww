@@ -37,7 +37,7 @@ Vagrant.configure(2) do |config|
     vm.memory = v_memb
     vm.cpus = v_cpus
     vm.name = vagrant_name
-    vm.update_guest_tools = false
+    vm.update_guest_tools = true
     override.vm.box = "parallels/ubuntu-14.04"
   end
 
@@ -84,6 +84,26 @@ Vagrant.configure(2) do |config|
   end
 
   # TODO: vagrant triggers to dump db
+  # if defined? VagrantPlugins::Triggers
+  #   config.trigger.after :up, :stdout => true do
+  #     run "vagrant ssh -c 'vagrant_up'"
+  #   end
+  #   config.trigger.before :reload, :stdout => true do
+  #     run "vagrant ssh -c 'vagrant_halt'"
+  #   end
+  #   config.trigger.after :reload, :stdout => true do
+  #     run "vagrant ssh -c 'vagrant_up'"
+  #   end
+  #   config.trigger.before :halt, :stdout => true do
+  #     run "vagrant ssh -c 'vagrant_halt'"
+  #   end
+  #   config.trigger.before :suspend, :stdout => true do
+  #     run "vagrant ssh -c 'vagrant_suspend'"
+  #   end
+  #   config.trigger.before :destroy, :stdout => true do
+  #     run "vagrant ssh -c 'vagrant_destroy'"
+  #   end
+  # end
 
   if Vagrant.has_plugin?("vagrant-cachier")
     # More info on http://fgrehm.viewdocs.io/vagrant-cachier/usage
