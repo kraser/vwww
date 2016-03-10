@@ -1,22 +1,4 @@
-class ondrejppa_php56 {
-
-  # add the right php repo
-  exec { "ondrejppa_php56":
-   command => 'add-apt-repository -y ppa:ondrej/php5-5.6',
-   require => Package["python-software-properties"],
-  }
-
-  # Refreshes the list of packages
-  exec { 'php56-apt-update':
-    command => 'apt-get update',
-    require => Exec['ondrejppa_php56'],
-  }
-
-}
-
 class php5::install {
-
-  require ondrejppa_php56
 
   # the php packages we need.
   package { [
@@ -38,26 +20,37 @@ class php5::install {
       "php5",
     ]:
     ensure => latest,
-    require => Class["ondrejppa_php56"],
+    require => Exec["apt-update"],
   }
 
   package { "php5-curl":
     ensure => latest,
     require => [
       Package["curl"],
-      Class['ondrejppa_php56']
+      Exec['apt-update']
     ],
   }
 
   # some other services that we need
   package { [
-          "imagemagick",
-          "memcached",
-          "postfix",
-          "gettext",
+        "imagemagick",
+        "memcached",
+        "postfix",
+        "gettext",
       ]:
       ensure => latest,
       require => Exec["apt-update"]
+  }
+
+  file { "/var/www/html/index.php":
+      content => "<?php phpinfo();",
+      ensure => present,
+      mode => 644,
+      require => Package["apache2", "php5"]
+  }
+  file { "/var/www/html/index.html":
+      ensure => absent,
+      require => Package["apache2", "php5"]
   }
 
 }
