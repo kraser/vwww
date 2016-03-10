@@ -1,6 +1,6 @@
 class apache2::install {
   package { "apache2":
-    ensure  => present,
+    ensure  => latest,
     require => Exec["apt-update"],
   }
 

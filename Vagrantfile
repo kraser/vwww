@@ -116,5 +116,4 @@ Vagrant.configure(2) do |config|
     # check cache size `du -h -d0 $HOME/.vagrant.d/cache`
   end
 
-
 end

@@ -8,8 +8,11 @@ stage { 'encore': require => Stage['main']}
 class init {
 
   # necessary for adding repos
-  package { "software-properties-common":
-    ensure => present
+  package { [
+    "software-properties-common",
+    "language-pack-en-base",
+    ]:
+    ensure => latest
   }
 
   # this is the php that we want
@@ -28,13 +31,12 @@ class init {
   # and then get the other essentials
   package { [
       "python-software-properties",
-      "language-pack-en-base",
       "build-essential",
       "vim",
       "curl",
       "git",
     ]:
-    ensure => present,
+    ensure => latest,
     require => Exec["apt-update"],
   }
 }
