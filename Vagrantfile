@@ -10,6 +10,8 @@
 # https://github.com/videoMonkey/vagrant-lamp
 # https://nodesource.com/blog/nodejs-v012-iojs-and-the-nodesource-linux-repositories
 # https://bitbucket.org/mmcmedia/asdika-web/commits/a91174541e0b4df286860ad699aec0640c52e9f0
+# https://gist.github.com/asmerkin/df919a6a79b081512366
+# http://laravel-recipes.com/recipes/23/provisioning-vagrant-with-a-shell-script
 
 # a few vars
 ENV["LC_ALL"] = "en_US.UTF-8"
@@ -56,6 +58,9 @@ Vagrant.configure(2) do |config|
     vm.cpus = v_cpus
     override.vm.box = "ericmann/trusty64"
   end
+
+  config.vm.network "forwarded_port", guest: 80, host: 1234
+  config.vm.network "forwarded_port", guest: 3306, host: 3306
 
   # Customfile - POSSIBLY UNSTABLE
   #

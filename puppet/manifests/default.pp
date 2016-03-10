@@ -1,46 +1,47 @@
-# One should make sure they have the latest packages before
-# adding more
-exec { "apt-update":
-  command => 'aptitude update --quiet --assume-yes',
-  path => "/usr/bin",
-}
-
 # set global path variable for project
 # http://www.puppetcookbook.com/posts/set-global-exec-path.html
 Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/usr/local/sbin", "~/.composer/vendor/bin/" ] }
 
-# a few essential tools that make a server functional
-package { [
-    "python-software-properties",
-    "software-properties-common",
-    "language-pack-en-base",
-    "build-essential",
-    "vim",
-    "curl",
-    "git",
-  ]:
-  ensure => present,
-  require => Exec["apt-update"]
+stage { 'opening_act': before => Stage['main'],}
+stage { 'encore': require => Stage['main']}
+
+class init {
+
+  # necessary for adding repos
+  package { "software-properties-common":
+    ensure => present
+  }
+
+  # this is the php that we want
+  exec { "ondrejppa_php56":
+    unless => 'ls /etc/apt/sources.list.d | grep ondrej-php5-5_6',
+    command => 'add-apt-repository -y ppa:ondrej/php5-5.6',
+    require => Package["software-properties-common"],
+  }
+
+  # now let's update and get the latest packages
+  exec { "apt-update":
+    command => 'aptitude update --quiet --assume-yes',
+    require => Exec["ondrejppa_php56"]
+  }
+
+  # and then get the other essentials
+  package { [
+      "python-software-properties",
+      "language-pack-en-base",
+      "build-essential",
+      "vim",
+      "curl",
+      "git",
+    ]:
+    ensure => present,
+    require => Exec["apt-update"],
+  }
 }
 
-# class { 'git::install': }
-# class { 'subversion::install': }
-class { 'apache2::install': }
-class { 'php5::install': }
-# class { 'mysql::install': }
-# class { 'wordpress::install': }
-# class { 'phpmyadmin::install': }
-# class { 'composer::install': }
-# class { 'phpqa::install': }
-
-# LIBRARIAN-PUPPET
-# I don't know that I need this or want this.
-# package { 'ruby1.9.1-dev':
-#   ensure   => 'installed',
-#   require => Exec["apt-update"]
-# }
-# package { 'librarian-puppet':
-#   ensure   => 'installed',
-#   provider => 'gem',
-#   require => Package["ruby1.9.1-dev"]
-# }
+class { "init": stage => opening_act }
+class { 'apache2::install': stage => main }
+class { 'php5::install': stage => main }
+class { "mysql::install": stage => main, root_password => "root" }
+class { 'phpmyadmin::install': }
+# class { 'redis::install': }
