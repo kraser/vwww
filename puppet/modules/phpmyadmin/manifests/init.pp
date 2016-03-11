@@ -4,7 +4,7 @@ class phpmyadmin::install {
     ensure => present,
     require => [
       Exec["apt-update"],
-      Package["php5-curl"],
+      Package["php5-curl", "apache2", "mysql-server"],
     ]
   }
 
@@ -14,7 +14,7 @@ class phpmyadmin::install {
     group => 'root',
     mode => 644,
     source  => "puppet:///modules/phpmyadmin/001-phpmyadmin.conf",
-    require => Package['apache2', 'php5-cli'],
+    require => Package['apache2', 'phpmyadmin'],
     notify  => Service['apache2'],
   }
 
@@ -25,7 +25,7 @@ class phpmyadmin::install {
     group => 'root',
     mode => 644,
     source  => "puppet:///modules/phpmyadmin/config.inc.php",
-    require => Package['apache2', 'php5-cli'],
+    require => Package["phpmyadmin"],
   }
 
 }

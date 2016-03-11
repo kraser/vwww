@@ -18,6 +18,7 @@ class mysql::install($root_password) {
         notify => Service["mysql"]
     }
 
+    # TODO: set root user to wildcard access
     exec { "set-root-password":
         subscribe => [ Package["mysql-server"], Package["mysql-client"] ],
         refreshonly => true,

@@ -1,13 +1,7 @@
 class php5::install {
 
   # the php packages we need.
-  package { "php5-cli":
-    require => [
-      Exec["apt-update"],
-      Package["apache2"],
-    ],
-  }
-
+  package { "php5-cli": require => Exec["apt-update"], }
   package { [
       "libapache2-mod-php5",
       "php-pear",
