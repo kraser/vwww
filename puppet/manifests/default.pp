@@ -1,3 +1,6 @@
+# TODO: set apache logging to /srv/log
+# TODO: set php logging to /srv/log
+
 # set global path variable for project
 # http://www.puppetcookbook.com/posts/set-global-exec-path.html
 Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/usr/local/sbin", "~/.composer/vendor/bin/" ] }
@@ -22,6 +25,12 @@ class init {
     require => Package["software-properties-common"],
   }
 
+  # Set the Timezone to something useful
+  exec { "set_time_zone":
+    unless => 'more /etc/timezone | grep Madrid',
+    command => 'echo "Europe/Madrid" | sudo tee /etc/timezone && dpkg-reconfigure --frontend noninteractive tzdata',
+  }
+
   # now let's update and get the latest packages
   exec { "apt-update":
     command => 'aptitude update --quiet --assume-yes',
@@ -32,6 +41,7 @@ class init {
   package { [
       "python-software-properties",
       "build-essential",
+      "puppet",
       "vim",
       "curl",
       "git",

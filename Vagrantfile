@@ -61,6 +61,9 @@ Vagrant.configure(2) do |config|
 
   config.vm.network "forwarded_port", guest: 80, host: 1234
   config.vm.network "forwarded_port", guest: 3306, host: 3306
+  config.vm.synced_folder "database", "/srv/database"
+  config.vm.synced_folder "log", "/srv/log"
+
 
   # Customfile - POSSIBLY UNSTABLE
   #
@@ -77,7 +80,14 @@ Vagrant.configure(2) do |config|
   # Some boxes come with puppet installed, others don't
   # so here we quickly install it.
   config.vm.provision "shell", inline: <<-SHELL
-    sudo aptitude install --assume-yes puppet
+    echo "checking for Puppet..."
+    puppet=$(dpkg -s puppet | grep "install ok installed")
+    if [[ -z $puppet ]]; then
+      echo "Puppet not found. Installing Puppet for provisioning."
+      sudo aptitude install --assume-yes puppet
+    else
+      echo "Puppet already installed, moving on"
+    fi
   SHELL
 
   # Provisioning
