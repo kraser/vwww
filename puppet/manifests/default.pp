@@ -52,8 +52,14 @@ class init {
 }
 
 class { "init": stage => opening_act }
+class { 'nginx::install': stage => main }
 class { 'apache2::install': stage => main }
 class { 'php5::install': stage => main }
-class { "mysql::install": stage => main, root_password => "root" }
-class { 'phpmyadmin::install': }
+# class { "mysql::install": stage => main, root_password => "root" }
+# class { 'phpmyadmin::install': stage => main }
 # class { 'redis::install': }
+# class { 'app_analytics': stage => encore }
+# class { 'app_daysaway': stage => encore }
+# class { 'app_home': stage => encore }
+# class { 'app_ioboard': stage => encore }
+# class { 'app_projects': stage => encore }

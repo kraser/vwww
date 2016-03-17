@@ -28,6 +28,11 @@ Vagrant.configure(2) do |config|
   Vagrant.require_version ">= 1.8.0"
   config.vm.box = "ubuntu/trusty64"
   config.vm.hostname = "vagrant-www"
+  config.vm.network :private_network, ip: "192.168.10.3"
+  config.vm.hostname = "dev.mmcmedia.org"
+  # install vagrant ghost plugin `vagrant plugin install vagrant-ghost`
+  # https://github.com/10up/vagrant-ghost
+  config.ghost.hosts = ["home.dev.mmcmedia.org", "analytics.dev.mmcmedia.org"]
 
   config.vm.provider :virtualbox do |vm|
     vm.customize ["modifyvm", :id, "--cpus", v_cpus ]
@@ -59,8 +64,12 @@ Vagrant.configure(2) do |config|
     override.vm.box = "ericmann/trusty64"
   end
 
-  config.vm.network "forwarded_port", guest: 80, host: 1234
+  config.vm.network "forwarded_port", guest: 80, host: 80
+  config.vm.network "forwarded_port", guest: 443, host: 443
+  config.vm.network "forwarded_port", guest: 1234, host: 1234
   config.vm.network "forwarded_port", guest: 3306, host: 3306
+  config.vm.network "forwarded_port", guest: 8080, host: 8080
+  config.vm.network "forwarded_port", guest: 8443, host: 8443
   config.vm.synced_folder "database", "/srv/database"
   config.vm.synced_folder "log", "/srv/log"
 

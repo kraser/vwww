@@ -1,4 +1,4 @@
-# Vagrant-WWWW
+# Vagrant-WWW
 
 If you want to use this currently you need to have installed [Vagrant](https://www.vagrantup.com) and [VirtualBox](http://www.virtualbox.org) but it should work with every provider that Vagrant supports.
 

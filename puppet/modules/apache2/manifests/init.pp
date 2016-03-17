@@ -2,14 +2,14 @@ class apache2::install {
 
   package { 'apache2':
     ensure  => latest,
-    require => Exec['apt-update'],
+    require => [Exec['apt-update'], Service['nginx']],
   }
 
   service { 'apache2':
     ensure  => 'running',
     require => [
       Package['apache2'],
-      File['vhosts.conf'],
+      File['apache2.conf', 'ports.conf'],
     ]
   }
 
@@ -24,29 +24,34 @@ class apache2::install {
     notify => Service['apache2'],
   }
 
-  file { 'vhosts.conf':
-    name => '/etc/apache2/sites-enabled/vhosts.conf',
+  file { 'ports.conf':
+    name => '/etc/apache2/ports.conf',
     ensure => 'present',
     owner => 'root',
     group => 'root',
     mode => 644,
-    source => '/vagrant/vhosts.conf',
+    source => 'puppet:///modules/apache2/ports.conf',
     require => Package['apache2'],
     notify => Service['apache2'],
   }
 
-  file { '/srv/log':
-    ensure => 'directory',
-    # owner => 'root',
-    # group => 'root',
-    mode => 755,
+  # apache2::loadmodule{ 'rewrite': }
+  exec { '/usr/sbin/a2enmod rewrite' :
+       unless => '/bin/readlink -e /etc/apache2/mods-enabled/rewrite.load',
+       notify => Service['apache2'],
+       require => Package ['apache2'],
   }
 
-  apache2::loadmodule{ 'rewrite': }
-
+  # TODO: autogenerate ssl certificate
+  exec { '/usr/sbin/a2enmod ssl' :
+       unless => '/bin/readlink -e /etc/apache2/mods-enabled/ssl.load',
+       notify => Service['apache2'],
+       require => Package ['apache2'],
+  }
 }
 
-# TODO: Apache2 loadmodule
+# TODO: apache2::loadmodule restarts webserver with EVERY provision, even when nothing installs
+# TODO: apache2::loadmodule doesn't seem to work
 # https://snowulf.com/2012/04/05/puppet-quick-tip-enabling-an-apache-module/
 # https://docs.puppetlabs.com/puppet/4.3/reference/lang_defined_types.html
 define apache2::loadmodule () {
