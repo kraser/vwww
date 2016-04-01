@@ -55,8 +55,37 @@ class { "init": stage => opening_act }
 class { 'nginx::install': stage => main }
 class { 'apache2::install': stage => main }
 class { 'php5::install': stage => main }
-# class { "mysql::install": stage => main, root_password => "root" }
-# class { 'phpmyadmin::install': stage => main }
+
+class { "::mysql::server":
+  root_password => "root",
+  users => {
+    'root@%' => {
+      ensure                   => 'present',
+      max_connections_per_hour => '0',
+      max_queries_per_hour     => '0',
+      max_updates_per_hour     => '0',
+      max_user_connections     => '0',
+      password_hash            => '*81F5E21E35407D884A6CD4A731AEBFB6AF209E1B',
+    },
+  },
+  grants => {
+    'root@%/*.*' => {
+      ensure => 'present',
+      options => ['GRANT'],
+      privileges => ['ALL'],
+      table => '*.*',
+      user => 'root@%',
+    }
+  },
+  override_options => {
+    'mysqld' => {
+      'bind-address' => '0.0.0.0',
+    }
+  },
+  stage => main,
+}
+
+class { 'phpmyadmin::install': stage => main }
 # class { 'redis::install': }
 # class { 'app_analytics': stage => encore }
 # class { 'app_daysaway': stage => encore }
