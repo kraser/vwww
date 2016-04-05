@@ -13,26 +13,38 @@
 # https://gist.github.com/asmerkin/df919a6a79b081512366
 # http://laravel-recipes.com/recipes/23/provisioning-vagrant-with-a-shell-script
 
-# a few vars
+# getting the hostname
+require 'socket'
+hostname = Socket.gethostname
+hostname = hostname[/[\w|\d|\-|\_]+/] # only save the contents up to the first '.'
+
+#setting SSH locale
 ENV["LC_ALL"] = "en_US.UTF-8"
+
+# few more things.
 dir = Dir.pwd
 vagrant_dir = File.expand_path(File.dirname(__FILE__))
 vagrant_name = File.basename(dir)
 vagrant_version = Vagrant::VERSION.sub(/^v/, '')
+
+# the potency of the VM
 v_cpus = 2
 v_memb = 1024
+
 
 # and lets go!
 Vagrant.configure(2) do |config|
 
   Vagrant.require_version ">= 1.8.0"
   config.vm.box = "ubuntu/trusty64"
-  config.vm.hostname = "vagrant-www"
   config.vm.network :private_network, ip: "192.168.10.3"
-  config.vm.hostname = "dev.mmcmedia.org"
+  config.vm.hostname = hostname + ".mmcmedia.org"
   # install vagrant ghost plugin `vagrant plugin install vagrant-ghost`
   # https://github.com/10up/vagrant-ghost
-  config.ghost.hosts = ["home.dev.mmcmedia.org", "analytics.dev.mmcmedia.org"]
+  config.ghost.hosts = [
+    "home." + hostname + ".mmcmedia.org",
+    "analytics." + hostname + ".mmcmedia.org"
+  ]
 
   config.vm.provider :virtualbox do |vm|
     vm.customize ["modifyvm", :id, "--cpus", v_cpus ]
@@ -70,8 +82,41 @@ Vagrant.configure(2) do |config|
   config.vm.network "forwarded_port", guest: 3306, host: 3306
   config.vm.network "forwarded_port", guest: 8080, host: 8080
   config.vm.network "forwarded_port", guest: 8443, host: 8443
-  config.vm.synced_folder "database", "/srv/database"
-  config.vm.synced_folder "log", "/srv/log"
+
+  # /srv/database/
+  #
+  # If a database directory exists in the same directory as your Vagrantfile,
+  # a mapped directory inside the VM will be created that contains these files.
+  # This directory is used to maintain default database scripts as well as backed
+  # up mysql dumps (SQL files) that are to be imported automatically on vagrant up
+  config.vm.synced_folder "database/", "/srv/database"
+
+  # If the mysql_upgrade_info file from a previous persistent database mapping is detected,
+  # we'll continue to map that directory as /var/lib/mysql inside the virtual machine. Once
+  # this file is changed or removed, this mapping will no longer occur. A db_backup command
+  # is now available inside the virtual machine to backup all databases for future use. This
+  # command is automatically issued on halt, suspend, and destroy if the vagrant-triggers
+  # plugin is installed.
+  if File.exists?(File.join(vagrant_dir,'database/data/mysql_upgrade_info')) then
+    if vagrant_version >= "1.3.0"
+      config.vm.synced_folder "database/data/", "/var/lib/mysql", :mount_options => [ "dmode=777", "fmode=777" ]
+    else
+      config.vm.synced_folder "database/data/", "/var/lib/mysql", :extra => 'dmode=777,fmode=777'
+    end
+
+    # The Parallels Provider does not understand "dmode"/"fmode" in the "mount_options" as
+    # those are specific to Virtualbox. The folder is therefore overridden with one that
+    # uses corresponding Parallels mount options.
+    config.vm.provider :parallels do |v, override|
+      override.vm.synced_folder "database/data/", "/var/lib/mysql", :mount_options => []
+    end
+  end
+
+  # /srv/log/
+  #
+  # If a log directory exists in the same directory as your Vagrantfile, a mapped
+  # directory inside the VM will be created for some generated log files.
+  config.vm.synced_folder "log/", "/srv/log", :owner => "www-data"
 
 
   # Customfile - POSSIBLY UNSTABLE
@@ -101,33 +146,34 @@ Vagrant.configure(2) do |config|
 
   # Provisioning
   config.vm.provision :puppet do |puppet|
+    # puppet.facter = {}
     puppet.manifests_path = "puppet/manifests"
     puppet.module_path = "puppet/modules"
     puppet.manifest_file  = "default.pp"
     puppet.options="--verbose"
   end
 
-  # TODO: vagrant triggers to dump db
-  # if defined? VagrantPlugins::Triggers
-  #   config.trigger.after :up, :stdout => true do
-  #     run "vagrant ssh -c 'vagrant_up'"
-  #   end
-  #   config.trigger.before :reload, :stdout => true do
-  #     run "vagrant ssh -c 'vagrant_halt'"
-  #   end
-  #   config.trigger.after :reload, :stdout => true do
-  #     run "vagrant ssh -c 'vagrant_up'"
-  #   end
-  #   config.trigger.before :halt, :stdout => true do
-  #     run "vagrant ssh -c 'vagrant_halt'"
-  #   end
-  #   config.trigger.before :suspend, :stdout => true do
-  #     run "vagrant ssh -c 'vagrant_suspend'"
-  #   end
-  #   config.trigger.before :destroy, :stdout => true do
-  #     run "vagrant ssh -c 'vagrant_destroy'"
-  #   end
-  # end
+  # TODO: vagrant triggers dump db working
+  if defined? VagrantPlugins::Triggers
+    config.trigger.after :up, :stdout => true do
+      run "vagrant ssh -c 'vagrant_up'"
+    end
+    config.trigger.before :reload, :stdout => true do
+      run "vagrant ssh -c 'vagrant_halt'"
+    end
+    config.trigger.after :reload, :stdout => true do
+      run "vagrant ssh -c 'vagrant_up'"
+    end
+    config.trigger.before :halt, :stdout => true do
+      run "vagrant ssh -c 'vagrant_halt'"
+    end
+    config.trigger.before :suspend, :stdout => true do
+      run "vagrant ssh -c 'vagrant_suspend'"
+    end
+    config.trigger.before :destroy, :stdout => true do
+      run "vagrant ssh -c 'vagrant_destroy'"
+    end
+  end
 
   if Vagrant.has_plugin?("vagrant-cachier")
     # More info on http://fgrehm.viewdocs.io/vagrant-cachier/usage

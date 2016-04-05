@@ -3,3 +3,4 @@
 Customfile
 vhosts.conf
 log
+*.sql
