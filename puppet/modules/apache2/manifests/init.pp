@@ -35,8 +35,6 @@ class apache2::install {
     notify => Service['apache2'],
   }
 
-  # TODO: autogenerate ssl certificate
-  # apache2::loadmodule{ 'rewrite': }
   exec { 'a2enmods' :
     command => '/usr/sbin/a2enmod rewrite proxy proxy_http ssl proxy_balancer',
     # unless => '/bin/readlink -e /etc/apache2/mods-enabled/rewrite.load',
@@ -45,6 +43,7 @@ class apache2::install {
   }
 }
 
+# TODO: autogenerate ssl certificate
 # TODO: apache2::loadmodule restarts webserver with EVERY provision, even when nothing installs
 # TODO: apache2::loadmodule doesn't seem to work
 # https://snowulf.com/2012/04/05/puppet-quick-tip-enabling-an-apache-module/

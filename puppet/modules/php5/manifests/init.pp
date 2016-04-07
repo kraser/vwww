@@ -5,6 +5,7 @@ class php5::install {
   package { [
       'libapache2-mod-php5',
       'php-pear',
+      'php5',
       'php5-apcu',
       'php5-dev',
       'php5-common',
@@ -50,13 +51,13 @@ class php5::install {
     content => '<?php phpinfo();',
     ensure => present,
     mode => 644,
-    require => Package['apache2', 'php5-cli']
+    require => Package['apache2', 'php5']
   }
 
   file { '/var/www/html/index.html':
     ensure => absent,
     require => [
-      Package['apache2', 'php5-cli'],
+      Package['apache2', 'php5'],
       File['/var/www/html/index.php'],
     ],
   }
@@ -68,7 +69,7 @@ class php5::install {
     group => 'root',
     mode => 644,
     source => 'puppet:///modules/php5/php.ini',
-    require => Package['apache2', 'php5-cli'],
+    require => Package['apache2', 'php5'],
     notify => Service['apache2'],
   }
 

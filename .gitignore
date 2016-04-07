@@ -1,6 +1,6 @@
 .vagrant
 .tmp
 Customfile
-vhosts.conf
+conf/vhosts.conf
 log
 *.sql

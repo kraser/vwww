@@ -136,15 +136,21 @@ Vagrant.configure(2) do |config|
   # Some boxes come with puppet installed, others don't
   # so here we quickly install it.
   config.vm.provision "shell", inline: <<-SHELL
-    echo "checking for Puppet..."
-    puppet=$(dpkg -s puppet | grep "install ok installed")
+    echo "Checking Puppet version..."
+    puppet=$(dpkg -s puppet | grep "Version: 3.8")
     if [[ -z $puppet ]]; then
-      echo "Puppet not found. Installing Puppet for provisioning."
+      echo "Puppet either missing or not up-to-data."
+      echo "Installing/updating puppet"
+      cd ~ && wget https://apt.puppetlabs.com/puppetlabs-release-trusty.deb
+      sudo dpkg -i puppetlabs-release-trusty.deb
+      sudo aptitude update
       sudo aptitude install --assume-yes puppet
     else
-      echo "Puppet already installed, moving on"
+      echo "Puppet already installed and up to date, moving on"
     fi
   SHELL
+
+  config.vm.provision "file", source: "conf/puppet.conf", destination: "/home/vagrant/.puppet/puppet.conf"
 
   # Provisioning
   config.vm.provision :puppet do |puppet|
