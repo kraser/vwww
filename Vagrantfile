@@ -16,7 +16,7 @@
 # getting the hostname
 require 'socket'
 hostname = Socket.gethostname
-hostname = hostname[/[\w|\d|\-|\_]+/] # only save the contents up to the first '.'
+hostname = hostname[/[\w|\d|\-]+/] # only save the contents up to the first '.'
 
 #setting SSH locale
 ENV["LC_ALL"] = "en_US.UTF-8"
@@ -26,6 +26,8 @@ dir = Dir.pwd
 vagrant_dir = File.expand_path(File.dirname(__FILE__))
 vagrant_name = File.basename(dir)
 vagrant_version = Vagrant::VERSION.sub(/^v/, '')
+
+hostname = hostname + '-' + vagrant_name
 
 # the potency of the VM
 v_cpus = 2

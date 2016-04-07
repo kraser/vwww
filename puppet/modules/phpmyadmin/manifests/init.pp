@@ -8,7 +8,7 @@ class phpmyadmin::install {
     ]
   }
 
-  file { '/etc/apache2/sites-enabled/000-default.conf':
+  file { '/etc/apache2/sites-enabled/001-phpmyadmin.conf':
     ensure => present,
     owner => 'root',
     group => 'root',

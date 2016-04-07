@@ -35,18 +35,13 @@ class apache2::install {
     notify => Service['apache2'],
   }
 
-  # apache2::loadmodule{ 'rewrite': }
-  exec { '/usr/sbin/a2enmod rewrite' :
-       unless => '/bin/readlink -e /etc/apache2/mods-enabled/rewrite.load',
-       notify => Service['apache2'],
-       require => Package ['apache2'],
-  }
-
   # TODO: autogenerate ssl certificate
-  exec { '/usr/sbin/a2enmod ssl' :
-       unless => '/bin/readlink -e /etc/apache2/mods-enabled/ssl.load',
-       notify => Service['apache2'],
-       require => Package ['apache2'],
+  # apache2::loadmodule{ 'rewrite': }
+  exec { 'a2enmods' :
+    command => '/usr/sbin/a2enmod rewrite proxy proxy_http ssl proxy_balancer',
+    # unless => '/bin/readlink -e /etc/apache2/mods-enabled/rewrite.load',
+    notify => Service['apache2'],
+    require => Package ['apache2'],
   }
 }
 
