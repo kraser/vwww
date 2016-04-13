@@ -10,35 +10,12 @@ stage { 'encore': require => Stage['main']}
 
 class init {
 
-  user { 'vagrant':
-    ensure => 'present',
-  }
-
-  file { '/home/vagrant/bin':
-    ensure => 'link',
-    target => '/vagrant/bin/',
-    require => User['vagrant'],
-  }
-
-  file { '/home/vagrant/.bash_profile':
-    ensure => 'present',
-    replace => 'no',
-    source => '/vagrant/puppet/files/bash_profile',
-  }
-
-  file_line { 'home_bin':
-    ensure => 'present',
-    line => 'PATH="/home/vagrant/bin:$PATH"',
-    path => '/home/vagrant/.bash_profile',
-    require => File['/home/vagrant/bin', '/home/vagrant/.bash_profile'],
-  }
-
   # necessary for adding repos
   package { [
     'software-properties-common',
     'language-pack-en-base',
     ]:
-    ensure => latest
+    ensure => latest,
   }
 
   # this is the php that we want
@@ -57,7 +34,7 @@ class init {
   # now let's update and get the latest packages
   exec { 'apt-update':
     command => 'aptitude update --quiet --assume-yes',
-    require => Exec['ondrejppa_php56']
+    require => Exec['ondrejppa_php56'],
   }
 
   # and then get the other essentials
@@ -74,60 +51,16 @@ class init {
   }
 }
 
-class more_sql {
-  # apparently vagrant only accepts connections from the host
-  # so the root password is root, don't change that unless you
-  # are sadomasochistic and want problems.
-  file { '/home/vagrant/.my.cnf':
-    ensure => present,
-    source => "/vagrant/puppet/files/root.my.cnf",
-    notify => Service['mysql'],
-    require => User['vagrant'],
-  }
-}
-
 class { 'init': stage => opening_act }
-class { 'nginx::install': stage => main }
+# class { 'nginx::install': stage => main }
 class { 'apache2::install': stage => main }
-class { 'php5::install': stage => main }
+# class { 'php5::install': stage => main }
 
-class { '::mysql::server':
-  root_password => 'root',
-  users => {
-    'root@%' => {
-      ensure                   => 'present',
-      max_connections_per_hour => '0',
-      max_queries_per_hour     => '0',
-      max_updates_per_hour     => '0',
-      max_user_connections     => '0',
-      password_hash            => '*81F5E21E35407D884A6CD4A731AEBFB6AF209E1B', # root
-    },
-  },
-  grants => {
-    'root@%/*.*' => {
-      ensure => 'present',
-      options => ['GRANT'],
-      privileges => ['ALL'],
-      table => '*.*',
-      user => 'root@%',
-    }
-  },
-  override_options => {
-    'mysqld' => {
-      'bind-address' => '0.0.0.0',
-      'max-allowed-packet' => '128M',
-      'log-error' => '/srv/log/mysql.error.log',
-    }
-  },
-  stage => main,
-}
-
-class{ 'more_sql': stage => main }
-class { 'apache2_vhosts': stage => main }
-class { 'phpmyadmin::install': stage => main }
+# class { 'apache2_vhosts': stage => main }
+# class { 'phpmyadmin::install': stage => main }
 # class { 'redis::install': }
 # class { 'app_home': stage => main }
 # class { 'app_analytics': stage => encore }
 # class { 'app_daysaway': stage => encore }
-# class { 'app_ioboard': stage => encore }
+# class { 'appsuite_ioboard': stage => main }
 # class { 'app_projects': stage => encore }
