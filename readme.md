@@ -9,41 +9,13 @@ The `Vagrantfile` can be overidden or further customized by including a file nam
 **DO NOT MAKE SERVER CONFIGURATION CHANGES THROUGH SSH.** Update the appropriate puppet file and run `vagrant provision`. Ask me if you're confused about puppet.
 
 ## USAGE
-To make this work you will need to create a file named `Customfile` it's kept out of version control. Here you will specify the synced directorys and port forwards necessary.
+To make this work you will need to create a file named:
+- `.env` ([example](https://gist.github.com/videoMonkey/))
+- `conf/apps.yaml` ([example](https://gist.github.com/videoMonkey/))
+- and optionally `conf/sites.yaml` ([example](https://gist.github.com/videoMonkey/))
 
-Example: (Do note whether or not your project has a public directory and configure accordingly)
+You also need to install `vagrant-ghost` and `vagrant-env`.
 
-```
-config.vm.synced_folder "../site1/", "/srv/www/site1/", owner: "root", group: "root"
-config.vm.network "forwarded_port", guest: 8001, host: 8001
-```
+Make sure these files are present before you try to type `vagrant up` to launch the project.
 
-Then you will need to create a file named `vhosts.conf` where you will define your apache virtual hosts.
-
-Example:
-
-```
-Listen 8001
-<VirtualHost *:8001>
-
-  ErrorLog /srv/log/site1.error.log
-  CustomLog /srv/log/site1.access.log combined
-
-  # this example project has an html folder in it. your project might be all
-  # public html, that would change the above folder sync to be:
-  # config.vm.synced_folder "../site1/", "/srv/www/site1/html", owner: "root", group: "root"
-  DocumentRoot "/srv/www/site1/html"
-  ServerName site1.dev
-  ServerAlias site1.*.xip.io
-  <Directory "/srv/www/site1/html">
-    Options Indexes MultiViews +FollowSymlinks
-    AllowOverride All
-    Order allow,deny
-    Allow from all
-  </Directory>
-</VirtualHost>
-```
-
-Make sure these two files are present before you try to type `vagrant up` to launch the project.
-
-
+Your sites are mapped name.dev

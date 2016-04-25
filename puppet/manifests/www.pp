@@ -51,16 +51,16 @@ class init {
   }
 }
 
+# class { 'motdtest': stage => opening_act }
 class { 'init': stage => opening_act }
+# class { 'redis::install': }
 # class { 'nginx::install': stage => main }
 class { 'apache2::install': stage => main }
-# class { 'php5::install': stage => main }
-
+class { 'php5::install': stage => main }
 # class { 'apache2_vhosts': stage => main }
 # class { 'phpmyadmin::install': stage => main }
-# class { 'redis::install': }
+class { 'appsuite_ioboard': stage => main }
+class { 'appsuite_projects': stage => main }
 # class { 'app_home': stage => main }
 # class { 'app_analytics': stage => encore }
 # class { 'app_daysaway': stage => encore }
-# class { 'appsuite_ioboard': stage => main }
-# class { 'app_projects': stage => encore }

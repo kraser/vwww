@@ -70,7 +70,7 @@
 
 # CHANGED
 # TODO: set apache servername to be what's set in vagrantfile
-ServerName "dev.mmcmedia.org"
+ServerName "<%= @fqdn %>"
 
 #
 # The accept serialization lock file MUST BE STORED ON A LOCAL DISK.
@@ -130,8 +130,8 @@ HostnameLookups Off
 # container, that host's errors will be logged there and not here.
 #
 # CHANGED
-ErrorLog /srv/log/apache.error.log
-CustomLog /srv/log/apache.access.log combined
+ErrorLog <%= @logdir %>/apache.error.log
+CustomLog <%= @logdir %>/apache.access.log combined
 
 #
 # LogLevel: Control the severity of messages logged to the error_log.

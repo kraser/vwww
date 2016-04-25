@@ -2,7 +2,7 @@ class apache2::install {
 
   package { 'apache2':
     ensure  => latest,
-    require => [Exec['apt-update'], Service['nginx']],
+    require => Exec['apt-update'],
   }
 
   service { 'apache2':
@@ -18,8 +18,8 @@ class apache2::install {
     ensure => 'present',
     owner => 'root',
     group => 'root',
-    mode => 644,
-    source => 'puppet:///modules/apache2/apache2.conf',
+    mode => '644',
+    content => template('apache2/apache2.conf.erb'),
     require => Package['apache2'],
     notify => Service['apache2'],
   }
@@ -29,7 +29,7 @@ class apache2::install {
     ensure => 'present',
     owner => 'root',
     group => 'root',
-    mode => 644,
+    mode => '644',
     source => 'puppet:///modules/apache2/ports.conf',
     require => Package['apache2'],
     notify => Service['apache2'],
@@ -39,7 +39,7 @@ class apache2::install {
     command => '/usr/sbin/a2enmod rewrite proxy proxy_http ssl proxy_balancer',
     # unless => '/bin/readlink -e /etc/apache2/mods-enabled/rewrite.load',
     notify => Service['apache2'],
-    require => Package ['apache2'],
+    require => Package['apache2'],
   }
 }
 
@@ -48,10 +48,10 @@ class apache2::install {
 # TODO: apache2::loadmodule doesn't seem to work
 # https://snowulf.com/2012/04/05/puppet-quick-tip-enabling-an-apache-module/
 # https://docs.puppetlabs.com/puppet/4.3/reference/lang_defined_types.html
-define apache2::loadmodule () {
-     exec { '/usr/sbin/a2enmod $name' :
-          unless => '/bin/readlink -e /etc/apache2/mods-enabled/${name}.load',
-          notify => Service['apache2'],
-          require => Package ['apache2'],
-     }
-}
+# define apache2::loadmodule () {
+#      exec { '/usr/sbin/a2enmod $name' :
+#           unless => '/bin/readlink -e /etc/apache2/mods-enabled/${name}.load',
+#           notify => Service['apache2'],
+#           require => Package ['apache2'],
+#      }
+# }

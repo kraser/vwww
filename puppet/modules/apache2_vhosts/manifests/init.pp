@@ -4,7 +4,7 @@ class apache2_vhosts{
     ensure => 'present',
     owner => 'root',
     group => 'root',
-    mode => 644,
+    mode => '644',
     source => '/vagrant/conf/vhosts.conf',
     require => Package['apache2'],
     notify => Service['apache2'],

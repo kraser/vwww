@@ -50,7 +50,7 @@ class php5::install {
   file { '/var/www/html/index.php':
     content => '<?php phpinfo();',
     ensure => present,
-    mode => 644,
+    mode => '644',
     require => Package['apache2', 'php5']
   }
 
@@ -67,7 +67,7 @@ class php5::install {
     ensure => present,
     owner => 'root',
     group => 'root',
-    mode => 644,
+    mode => '644',
     source => 'puppet:///modules/php5/php.ini',
     require => Package['apache2', 'php5'],
     notify => Service['apache2'],
