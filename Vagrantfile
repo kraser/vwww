@@ -9,7 +9,7 @@
 # https://github.com/gosuri/vagrant-env
 
 #setting SSH locale
-ENV["LC_ALL"] = "en_US.UTF-8"
+ENV['LC_ALL'] = 'en_US.UTF-8'
 
 # Import
 require 'yaml'
@@ -68,35 +68,41 @@ Vagrant.configure(2) do |config|
   end
 
   domains_array = ["#{vagrant_name}.dev"]
-
   ## WWW-APPS
+  appsuite = []
   if apps = YAML.load_file('conf/apps.yaml')
     apps.each do |app|
       domains_array.push("#{app["name"]}.#{ENV['VAGRANT_GUEST_DOMAIN']}")
       config.vm.synced_folder "#{app["local_path"]}", "/srv/www/appsuite-#{app["name"]}", owner: "root", group: "root"
+      appsuite.push(app['name'])
     end
-    config.vm.network "forwarded_port", guest: 80, host: 80
-    # config.vm.network "forwarded_port", guest: 443, host: 443
-    # config.vm.network "forwarded_port", guest: 8080, host: 8080
-    # config.vm.network "forwarded_port", guest: 8443, host: 8443
+    config.vm.network 'forwarded_port', guest: 80, host: 80
+    # config.vm.network 'forwarded_port', guest: 443, host: 443
+    # config.vm.network 'forwarded_port', guest: 8080, host: 8080
+    # config.vm.network 'forwarded_port', guest: 8443, host: 8443
   end
 
   ## WWW-SITES
+  websites = []
   if sites = YAML.load_file('conf/sites.yaml')
     sites.each do |site|
-      config.vm.network "forwarded_port", guest: site['port'], host: site['port']
+      config.vm.network 'forwarded_port', guest: site['port'], host: site['port']
       config.vm.synced_folder "#{site["local_path"]}", "/srv/www/www-#{site["name"]}", owner: "root", group: "root"
       domains_array.push("#{site["name"]}.dev")
+      websites.push([
+        site['name'],
+        site['port'],
+        site['live_url'],
+      ])
     end
   end
 
-
   ## WWW-OTHER
   # phpmyadmin
-  config.vm.network "forwarded_port", guest: 1234, host: 1234
+  config.vm.network 'forwarded_port', guest: 1234, host: 1234
   domains_array.push('phpmyadmin')
   # livereload
-  # config.vm.network "forwarded_port", guest: 35729, host: 35729
+  # config.vm.network 'forwarded_port', guest: 35729, host: 35729
 
   ## LOG
   # If a log directory exists in the same directory as your Vagrantfile, a mapped
@@ -141,10 +147,16 @@ Vagrant.configure(2) do |config|
 
   # Provisioning
   config.vm.provision :puppet do |puppet|
-    puppet.facter = { "logdir" => "/srv/log", "apps" => apps, "sites" => sites }
+    puppet.facter = {
+      "vagrant_host_ip" => ENV['VAGRANT_HOST_IP'],
+      "vagrant_guest_domain" => ENV['VAGRANT_GUEST_DOMAIN'],
+      "logdir" => "/srv/log",
+      "appsuite" => appsuite,
+      "websites" => websites,
+    }
     puppet.manifests_path = "puppet/manifests"
     puppet.module_path = "puppet/modules"
-    puppet.manifest_file  = "www.pp"
+    puppet.manifest_file  = "vwww.pp"
     puppet.options="--verbose"
   end
 

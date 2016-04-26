@@ -37,11 +37,10 @@ class apache2::install {
     notify  => Service['apache2'],
   }
 
-  exec { 'a2enmods' :
-    command => '/usr/sbin/a2enmod rewrite proxy proxy_http ssl proxy_balancer',
-    # unless => '/bin/readlink -e /etc/apache2/mods-enabled/rewrite.load',
-    notify  => Service['apache2'],
-    require => Package['apache2'],
-  }
+  apache2::load_module{ 'rewrite': }
+  apache2::load_module{ 'proxy': }
+  apache2::load_module{ 'proxy_http': }
+  apache2::load_module{ 'ssl': }
+  apache2::load_module{ 'proxy_balancer': }
 
 }

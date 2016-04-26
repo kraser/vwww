@@ -31,14 +31,7 @@ class phpmyadmin::install {
       require => Package['phpmyadmin'],
     }
 
-    exec { 'a2ensite_phpmyadmin' :
-      command => '/usr/sbin/a2ensite phpmyadmin',
-      unless  => '/bin/readlink -e /etc/apache2/sites-enabled/phpmyadmin.conf',
-      notify  => Service['apache2'],
-      require => [
-        Package['apache2'],
-        File['phpmyadmin.conf'],
-      ],
+  apache2::load_site{ 'phpmyadmin':
+    require => File['phpmyadmin.conf'],
     }
-
 }
