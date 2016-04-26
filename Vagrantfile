@@ -11,18 +11,15 @@
 #setting SSH locale
 ENV["LC_ALL"] = "en_US.UTF-8"
 
+# Import
 require 'yaml'
-require 'socket'
 
 # getting the names of things
 dir = Dir.pwd
-hostname = Socket.gethostname
-hostname = hostname[/[\w|\d|\-]+/] # only save the contents up to the first '.'
 vagrant_dir = File.expand_path(File.dirname(__FILE__))
 vagrant_name = File.basename(dir)
 vagrant_name = vagrant_name.gsub(/!\w|!d|!\-/, '-')
 vagrant_version = Vagrant::VERSION.sub(/^v/, '')
-vagrant_name = hostname + '-' + vagrant_name
 
 # the potency of the VM
 v_cpus = 2
@@ -37,7 +34,7 @@ Vagrant.configure(2) do |config|
   Vagrant.require_version ">= 1.8.0"
   config.vm.box = "ubuntu/trusty64"
   config.vm.network :private_network, ip: ENV['VAGRANT_GUEST_IP']
-  config.vm.hostname = vagrant_name + '.' + ENV['VAGRANT_GUEST_TLD']
+  config.vm.hostname = vagrant_name + '.' + ENV['VAGRANT_GUEST_DOMAIN']
 
 
   config.vm.provider :virtualbox do |vm|
@@ -70,17 +67,19 @@ Vagrant.configure(2) do |config|
     override.vm.box = "ericmann/trusty64"
   end
 
+  domains_array = ["#{vagrant_name}.dev"]
+
   ## WWW-APPS
-  domains_array = []
-  apps = YAML.load_file('conf/apps.yaml')
-  apps.each do |app|
-    domains_array.push("#{app["name"]}.#{ENV['VAGRANT_GUEST_TLD']}")
-    config.vm.synced_folder "#{app["local_path"]}", "/srv/www/appsuite-#{app["name"]}", owner: "root", group: "root"
+  if apps = YAML.load_file('conf/apps.yaml')
+    apps.each do |app|
+      domains_array.push("#{app["name"]}.#{ENV['VAGRANT_GUEST_DOMAIN']}")
+      config.vm.synced_folder "#{app["local_path"]}", "/srv/www/appsuite-#{app["name"]}", owner: "root", group: "root"
+    end
+    config.vm.network "forwarded_port", guest: 80, host: 80
+    # config.vm.network "forwarded_port", guest: 443, host: 443
+    # config.vm.network "forwarded_port", guest: 8080, host: 8080
+    # config.vm.network "forwarded_port", guest: 8443, host: 8443
   end
-  config.vm.network "forwarded_port", guest: 80, host: 80
-  # config.vm.network "forwarded_port", guest: 443, host: 443
-  # config.vm.network "forwarded_port", guest: 8080, host: 8080
-  # config.vm.network "forwarded_port", guest: 8443, host: 8443
 
   ## WWW-SITES
   if sites = YAML.load_file('conf/sites.yaml')
@@ -95,6 +94,7 @@ Vagrant.configure(2) do |config|
   ## WWW-OTHER
   # phpmyadmin
   config.vm.network "forwarded_port", guest: 1234, host: 1234
+  domains_array.push('phpmyadmin')
   # livereload
   # config.vm.network "forwarded_port", guest: 35729, host: 35729
 
@@ -141,7 +141,7 @@ Vagrant.configure(2) do |config|
 
   # Provisioning
   config.vm.provision :puppet do |puppet|
-    puppet.facter = { "logdir" => "/srv/log" }
+    puppet.facter = { "logdir" => "/srv/log", "apps" => apps, "sites" => sites }
     puppet.manifests_path = "puppet/manifests"
     puppet.module_path = "puppet/modules"
     puppet.manifest_file  = "www.pp"

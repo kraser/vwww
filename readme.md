@@ -19,3 +19,5 @@ You also need to install `vagrant-ghost` and `vagrant-env`.
 Make sure these files are present before you try to type `vagrant up` to launch the project.
 
 Your sites are mapped name.dev
+
+this depends on their being a mysql server installed on the host with an environment variable set in `.env`
