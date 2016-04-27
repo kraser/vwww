@@ -1,4 +1,4 @@
-<Directory /home/appsuite-projects/app/>
+<Directory /home/appsuite-<%= $name %>/app/>
   Options Indexes FollowSymLinks
   AllowOverride All
   Require all granted
@@ -12,10 +12,10 @@
   # match this virtual host. For the default virtual host (this file) this
   # value is not decisive as it is used as a last resort host regardless.
   # However, you must set it for any further virtual host explicitly.
-  ServerName projects.<%= @fqdn %>
+  ServerName <%= $name %>.<%= $domain %>
 
   ServerAdmin webmaster@localhost
-  DocumentRoot /home/appsuite-projects/app/html
+  DocumentRoot /home/appsuite-<%= $name %>/app/html
 
   # Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
   # error, crit, alert, emerg.
@@ -23,8 +23,8 @@
   # modules, e.g.
   #LogLevel info ssl:warn
 
-  ErrorLog <%= @logdir %>/appsuite-projects.error.log
-  CustomLog <%= @logdir %>/appsuite-projects.access.log combined
+  ErrorLog <%= $logdir %>/appsuite-<%= $name %>.error.log
+  CustomLog <%= $logdir %>/appsuite-<%= $name %>.access.log combined
 
   # For most configuration files from conf-available/, which are
   # enabled or disabled at a global level, it is possible to

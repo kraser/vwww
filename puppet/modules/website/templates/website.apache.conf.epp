@@ -1,0 +1,49 @@
+# echo <%= $port %> > ~/.pow/<%= $name %>
+
+<Directory "/srv/www/www-<%= $name %>">
+  Options Indexes FollowSymLinks
+  AllowOverride All
+  Order allow,deny
+  Allow from all
+</Directory>
+
+<% if(live_url) { %>
+# Proxying the wp-content directory
+<Directory "/srv/www/www-<%= $name %>/wp-content/uploads">
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.*) <%= $live_url %>/wp-content/uploads/$1 [L,P]
+</IfModule>
+</Directory>
+<% } %>
+
+Listen <%= $port %>
+<VirtualHost *:<%= $port %>>
+
+  DocumentRoot "/srv/www/www-<%= $name %>"
+  ServerName <%= $name %>
+
+  ServerAdmin webmaster@localhost
+
+  ErrorLog <%= $logdir %>/www-<%= $name %>.error.log
+  CustomLog <%= $logdir %>/www-<%= $name %>.access.log combined
+
+</VirtualHost>
+
+
+<VirtualHost *:80>
+
+  DocumentRoot "/srv/www/www-<%= $name %>"
+  ServerName <%= $name %>.dev
+  ServerAlias <%= $name %>.*.xip.io
+
+  ServerAdmin webmaster@localhost
+
+  ErrorLog <%= $logdir %>/appsuite-<%= $name %>.error.log
+  CustomLog <%= $logdir %>/appsuite-<%= $name %>.access.log combined
+
+</VirtualHost>
+
+# vim: syntax=apache ts=4 sw=4 sts=4 sr noet

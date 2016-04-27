@@ -51,7 +51,7 @@ class php5::install {
 
     file { '/var/www/html/index.php':
       ensure  => present,
-      content => '<?php phpinfo();',
+      content => '<h1>VWWW</h1><?php phpinfo();',
       mode    => '0644',
       require => Package['apache2', 'php5']
     }

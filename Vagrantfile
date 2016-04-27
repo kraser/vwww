@@ -2,7 +2,6 @@
 # vi: set ft=ruby :
 
 # TODO: Setting env variables in guest
-# TODO: passing sites and apps into facter
 
 # Plugins Used
 # https://github.com/10up/vagrant-ghost
@@ -18,8 +17,8 @@ require 'yaml'
 dir = Dir.pwd
 vagrant_dir = File.expand_path(File.dirname(__FILE__))
 vagrant_name = File.basename(dir)
+# replacing invalid hostname characters with a valid one
 vagrant_name = vagrant_name.gsub(/!\w|!d|!\-/, '-')
-vagrant_version = Vagrant::VERSION.sub(/^v/, '')
 
 # the potency of the VM
 v_cpus = 2
@@ -69,12 +68,12 @@ Vagrant.configure(2) do |config|
 
   domains_array = ["#{vagrant_name}.dev"]
   ## WWW-APPS
-  appsuite = []
+  appsuite = '' # for some reason I have to pass in strings and arrayify them in puppet
   if apps = YAML.load_file('conf/apps.yaml')
     apps.each do |app|
       domains_array.push("#{app["name"]}.#{ENV['VAGRANT_GUEST_DOMAIN']}")
       config.vm.synced_folder "#{app["local_path"]}", "/srv/www/appsuite-#{app["name"]}", owner: "root", group: "root"
-      appsuite.push(app['name'])
+      appsuite = "#{appsuite} #{app["name"]}"
     end
     config.vm.network 'forwarded_port', guest: 80, host: 80
     # config.vm.network 'forwarded_port', guest: 443, host: 443
@@ -83,26 +82,19 @@ Vagrant.configure(2) do |config|
   end
 
   ## WWW-SITES
-  websites = []
+  websites = '' # for some reason I have to pass in strings and arrayify them in puppet
   if sites = YAML.load_file('conf/sites.yaml')
     sites.each do |site|
       config.vm.network 'forwarded_port', guest: site['port'], host: site['port']
       config.vm.synced_folder "#{site["local_path"]}", "/srv/www/www-#{site["name"]}", owner: "root", group: "root"
       domains_array.push("#{site["name"]}.dev")
-      websites.push([
-        site['name'],
-        site['port'],
-        site['live_url'],
-      ])
+      websites = "#{websites} #{site["name"]},#{site["port"]},#{site["live_url"]}"
     end
   end
 
   ## WWW-OTHER
   # phpmyadmin
-  config.vm.network 'forwarded_port', guest: 1234, host: 1234
   domains_array.push('phpmyadmin')
-  # livereload
-  # config.vm.network 'forwarded_port', guest: 35729, host: 35729
 
   ## LOG
   # If a log directory exists in the same directory as your Vagrantfile, a mapped
@@ -144,15 +136,14 @@ Vagrant.configure(2) do |config|
     sudo service puppet restart
   SHELL
 
-
   # Provisioning
   config.vm.provision :puppet do |puppet|
     puppet.facter = {
       "vagrant_host_ip" => ENV['VAGRANT_HOST_IP'],
       "vagrant_guest_domain" => ENV['VAGRANT_GUEST_DOMAIN'],
       "logdir" => "/srv/log",
-      "appsuite" => appsuite,
-      "websites" => websites,
+      "appsuite" => appsuite.strip,
+      "websites" => websites.strip,
     }
     puppet.manifests_path = "puppet/manifests"
     puppet.module_path = "puppet/modules"

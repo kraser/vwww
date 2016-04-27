@@ -1,6 +1,8 @@
-# TODO: set apache logging to /srv/log
-# TODO: set php logging to /srv/log
 # TODO: autogenerate ssl certificate
+# TODO: autogenerate a welcome page highlighting hosted sites
+# TODO: phpmyadmin host_ip from configvar
+# TODO: phpmyadmin randomly generate salt http://stackoverflow.com/questions/2513734/generating-a-salt-in-php
+# TODO: error check for website without live_url
 
 # puppet style guide: https://docs.puppet.com/guides/style_guide.html
 # Puppet linter:      http://puppet-lint.com/checks/
@@ -14,16 +16,20 @@ Exec { path => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/',
 stage { 'opening_act': before => Stage['main'], }
 stage { 'encore': require => Stage['main'], }
 
-# class { 'motdtest': stage => opening_act }
 class { 'init': stage => opening_act }
 class { 'apache2::install': stage => main }
 class { 'php5::install': stage => main }
 class { 'phpmyadmin::install': stage => main }
 
-notice($appsuite)
-notice($websites)
-
 # these are passed in from the puppet.facter line in the vagrantfile
-# each($appsuite) |$app| { notice($app) }
-each($appsuite) |$app| { webapp::create{ $app : } }
-# each($websites) |$site| { notice($site) }
+$www_apps = split($::appsuite, ' ')
+$www_sites = split($::websites, ' ')
+
+each($www_apps) |$app| { webapp::create{ $app: } }
+each($www_sites) |$site| {
+  $www = split($site, ',')
+  website::create{ $www[0]:
+    port     => $www[1],
+    live_url => $www[2],
+  }
+}
