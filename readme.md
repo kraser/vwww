@@ -10,9 +10,9 @@ The `Vagrantfile` can be overidden or further customized by including a file nam
 
 ## USAGE
 To make this work you will need to create a file named:
-- `.env` ([example](https://gist.github.com/videoMonkey/))
-- `conf/apps.yaml` ([example](https://gist.github.com/videoMonkey/))
-- and optionally `conf/sites.yaml` ([example](https://gist.github.com/videoMonkey/))
+- `.env` ([example](https://gist.github.com/videoMonkey/991194f14c360052a84691a6e942b482))
+- `conf/apps.yaml` ([example](https://gist.github.com/videoMonkey/1b2a2bc4548c51f2f18b76b8d38e8c0b))
+- and optionally `conf/sites.yaml` ([example](https://gist.github.com/videoMonkey/3c08735d8718f37eab25408cf2ccb336))
 
 You also need to install `vagrant-ghost` and `vagrant-env`.
 
