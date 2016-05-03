@@ -20,9 +20,6 @@ vagrant_name = File.basename(dir)
 # replacing invalid hostname characters with a valid one
 vagrant_name = vagrant_name.gsub(/!\w|!d|!\-/, '-')
 
-v_apache_http = ENV['VAGRANT_APACHE_HTTP_PORT'] || 7080
-v_apache_https = ENV['VAGRANT_APACHE_HTTP_PORT'] || 7443
-
 # the potency of the VM
 v_cpus = 2
 v_memb = 1024
@@ -32,6 +29,9 @@ Vagrant.configure(2) do |config|
 
   # set ENV vars with a .env file
   config.env.enable
+
+  v_apache_http = (ENV['APACHE_HTTP_PORT']) ? ENV['APACHE_HTTP_PORT'] : 8080
+  v_apache_https = (ENV['APACHE_HTTPS_PORT']) ? ENV['APACHE_HTTPS_PORT'] : 8443
 
   Vagrant.require_version ">= 1.8.0"
   config.vm.box = "ubuntu/trusty64"
@@ -95,7 +95,9 @@ Vagrant.configure(2) do |config|
 
   ## WWW-OTHER
   # phpmyadmin
-  domains_array.push('phpmyadmin')
+  if ENV['MYSQL_HOST']
+    domains_array.push('phpmyadmin')
+  end
 
   ## LOG
   # If a log directory exists in the same directory as your Vagrantfile, a mapped
@@ -139,10 +141,14 @@ Vagrant.configure(2) do |config|
 
   # Provisioning
   config.vm.provision :puppet do |puppet|
+
+    if ENV['MYSQL_HOST']
+      puppet.facter.store('mysql_host', ENV['MYSQL_HOST'])
+    end
+
     puppet.facter = {
       "apache_http_port" => v_apache_http,
       "apache_https_port" => v_apache_https,
-      "vagrant_host_ip" => ENV['VAGRANT_HOST_IP'],
       "vagrant_guest_domain" => ENV['VAGRANT_GUEST_DOMAIN'],
       "logdir" => "/srv/log",
       "appsuite" => appsuite.strip,

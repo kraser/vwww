@@ -32,7 +32,7 @@ class apache2::install {
     owner   => 'root',
     group   => 'root',
     mode    => '0644',
-    source  => epp('apache2/ports.conf.epp', {
+    content => epp('apache2/ports.conf.epp', {
       http_port  => $::apache_http_port,
       https_port => $::apache_https_port,
 

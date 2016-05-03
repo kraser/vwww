@@ -1,5 +1,4 @@
-# echo <%= $port %> > ~/.pow/<%= $name %>
-
+# directory options
 <Directory "/srv/www/www-<%= $name %>">
   Options Indexes FollowSymLinks
   AllowOverride All
@@ -19,6 +18,7 @@
 </Directory>
 <% } %>
 
+# the port based vhost
 Listen <%= $port %>
 <VirtualHost *:<%= $port %>>
 
@@ -32,8 +32,8 @@ Listen <%= $port %>
 
 </VirtualHost>
 
-
-<VirtualHost *:80>
+# the name based vhost
+<VirtualHost *:<%= $::apache_http_port %>>
 
   DocumentRoot "/srv/www/www-<%= $name %>"
   ServerName <%= $name %>.dev
