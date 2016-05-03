@@ -37,6 +37,7 @@ Listen <%= $port %>
 
   DocumentRoot "/srv/www/www-<%= $name %>"
   ServerName <%= $name %>.dev
+  ServerAlias <%= $name %>.<%= $domain_name %>
   ServerAlias <%= $name %>.*.xip.io
 
   ServerAdmin webmaster@localhost

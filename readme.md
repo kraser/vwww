@@ -1,6 +1,7 @@
 # Vagrant-WWW
 
-[PHPMYADMIN](http://localhost:1234/phpmyadmin) | [PHPINFO](http://localhost/)
+- sites work with [xip.io](http://xip.io)!
+- everything is configured in two simple yaml files!
 
 If you want to use this currently you need to have installed [Vagrant](https://www.vagrantup.com) and [VirtualBox](http://www.virtualbox.org) but it should work with every provider that Vagrant supports.
 
@@ -18,6 +19,12 @@ You also need to install `vagrant-ghost` and `vagrant-env`.
 
 Make sure these files are present before you try to type `vagrant up` to launch the project.
 
-Your sites are mapped name.dev
+Your sites are mapped to:
+- site.dev
+- site.domain
+- site.*.xip.io
+
+Apps are mapped to
+- app.domain
 
 this depends on their being a mysql server installed on the host with an environment variable set in `.env`

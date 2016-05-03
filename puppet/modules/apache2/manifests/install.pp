@@ -32,7 +32,11 @@ class apache2::install {
     owner   => 'root',
     group   => 'root',
     mode    => '0644',
-    source  => 'puppet:///modules/apache2/ports.conf',
+    source  => epp('apache2/ports.conf.epp', {
+      http_port  => $::apache_http_port,
+      https_port => $::apache_https_port,
+
+    } ),
     require => Package['apache2'],
     notify  => Service['apache2'],
   }

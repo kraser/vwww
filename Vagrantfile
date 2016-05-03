@@ -20,6 +20,9 @@ vagrant_name = File.basename(dir)
 # replacing invalid hostname characters with a valid one
 vagrant_name = vagrant_name.gsub(/!\w|!d|!\-/, '-')
 
+v_apache_http = ENV['VAGRANT_APACHE_HTTP_PORT'] || 7080
+v_apache_https = ENV['VAGRANT_APACHE_HTTP_PORT'] || 7443
+
 # the potency of the VM
 v_cpus = 2
 v_memb = 1024
@@ -75,10 +78,8 @@ Vagrant.configure(2) do |config|
       config.vm.synced_folder "#{app["local_path"]}", "/srv/www/appsuite-#{app["name"]}", owner: "root", group: "root"
       appsuite = "#{appsuite} #{app["name"]}"
     end
-    config.vm.network 'forwarded_port', guest: 80, host: 80
-    # config.vm.network 'forwarded_port', guest: 443, host: 443
-    # config.vm.network 'forwarded_port', guest: 8080, host: 8080
-    # config.vm.network 'forwarded_port', guest: 8443, host: 8443
+    config.vm.network 'forwarded_port', guest: v_apache_http, host: v_apache_http
+    config.vm.network 'forwarded_port', guest: v_apache_https, host: v_apache_https
   end
 
   ## WWW-SITES
@@ -139,6 +140,8 @@ Vagrant.configure(2) do |config|
   # Provisioning
   config.vm.provision :puppet do |puppet|
     puppet.facter = {
+      "apache_http_port" => v_apache_http,
+      "apache_https_port" => v_apache_https,
       "vagrant_host_ip" => ENV['VAGRANT_HOST_IP'],
       "vagrant_guest_domain" => ENV['VAGRANT_GUEST_DOMAIN'],
       "logdir" => "/srv/log",

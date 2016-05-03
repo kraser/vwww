@@ -12,9 +12,10 @@ define website::create (
     group   => 'root',
     mode    => '0644',
     content => epp('website/website.apache.conf.epp', {
-      name     => $name,
-      port     => $port,
-      live_url => $live_url,
+      name        => $name,
+      domain_name => $::vagrant_guest_domain,
+      port        => $port,
+      live_url    => $live_url,
     } ),
     require => Package['apache2'],
   }
