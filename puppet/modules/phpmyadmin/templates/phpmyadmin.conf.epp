@@ -1,4 +1,4 @@
-<VirtualHost *:80>
+<VirtualHost *:<%= $::apache_http_port %>>
 
 	ServerName phpmyadmin
 
@@ -11,7 +11,7 @@
 	# However, you must set it for any further virtual host explicitly.
 	#ServerName www.example.com
 
-	ServerAdmin webmaster@localhost
+	# ServerAdmin webmaster@localhost
 	DocumentRoot /usr/share/phpmyadmin
 
 	# Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
@@ -20,8 +20,8 @@
 	# modules, e.g.
 	#LogLevel info ssl:warn
 
-	ErrorLog /srv/log/phpmyadmin.error.log
-	CustomLog /srv/log/phpmyadmin.access.log combined
+	ErrorLog <%= $::logdir %>/phpmyadmin.error.log
+	CustomLog <%= $::logdir %>/phpmyadmin.access.log combined
 
 	# For most configuration files from conf-available/, which are
 	# enabled or disabled at a global level, it is possible to

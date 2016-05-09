@@ -15,19 +15,18 @@ class phpmyadmin::install {
     owner   => 'root',
     group   => 'root',
     mode    => '0644',
-    source  => 'puppet:///modules/phpmyadmin/phpmyadmin.conf',
+    content => epp('phpmyadmin/phpmyadmin.conf.epp'),
     require => Package['apache2', 'phpmyadmin'],
     notify  => Service['apache2'],
   }
 
-  # http://stackoverflow.com/questions/11506224/connection-for-controluser-as-defined-in-your-configuration-failed-phpmyadmin-xa#11506495
   file { 'phpmyadmin/config.inc.php':
     ensure  => present,
     name    => '/usr/share/phpmyadmin/config.inc.php',
     owner   => 'root',
     group   => 'root',
     mode    => '0644',
-    source  => 'puppet:///modules/phpmyadmin/config.inc.php',
+    content => epp('phpmyadmin/config.inc.php.epp'),
     require => Package['phpmyadmin'],
   }
 

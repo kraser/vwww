@@ -86,7 +86,9 @@ Vagrant.configure(2) do |config|
   websites = '' # for some reason I have to pass in strings and arrayify them in puppet
   if sites = YAML.load_file('conf/sites.yaml')
     sites.each do |site|
-      config.vm.network 'forwarded_port', guest: site['port'], host: site['port']
+      if site['port']
+        config.vm.network 'forwarded_port', guest: site['port'], host: site['port']
+      end
       config.vm.synced_folder "#{site["local_path"]}", "/srv/www/www-#{site["name"]}", owner: "root", group: "root"
       domains_array.push("#{site["name"]}.dev")
       websites = "#{websites} #{site["name"]},#{site["port"]},#{site["live_url"]}"
@@ -99,6 +101,11 @@ Vagrant.configure(2) do |config|
     domains_array.push('phpmyadmin')
   end
 
+  # SSH Agent Forwarding
+  # Enable agent forwarding on vagrant ssh commands. This allows you to use ssh keys
+  # on your host machine inside the guest. See the manual for `ssh-add`.
+  config.ssh.forward_agent = true
+
   ## LOG
   # If a log directory exists in the same directory as your Vagrantfile, a mapped
   # directory inside the VM will be created for some generated log files.
@@ -110,9 +117,6 @@ Vagrant.configure(2) do |config|
   # Use this to insert your own (and possibly rewrite) Vagrant config lines. Helpful
   # for mapping additional drives. If a file 'Customfile' exists in the same directory
   # as this Vagrantfile, it will be evaluated as ruby inline as it loads.
-  #
-  # Note that if you find yourself using a Customfile for anything crazy or specifying
-  # different provisioning, then you may want to consider a new Vagrantfile entirely.
   if File.exists?(File.join(vagrant_dir,'Customfile')) then
     eval(IO.read(File.join(vagrant_dir,'Customfile')), binding)
   end
@@ -142,10 +146,6 @@ Vagrant.configure(2) do |config|
   # Provisioning
   config.vm.provision :puppet do |puppet|
 
-    if ENV['MYSQL_HOST']
-      puppet.facter.store('mysql_host', ENV['MYSQL_HOST'])
-    end
-
     puppet.facter = {
       "apache_http_port" => v_apache_http,
       "apache_https_port" => v_apache_https,
@@ -153,6 +153,8 @@ Vagrant.configure(2) do |config|
       "logdir" => "/srv/log",
       "appsuite" => appsuite.strip,
       "websites" => websites.strip,
+      "mysql_host" => ENV['MYSQL_HOST'],
+      "bretany_salt" => ENV['BRETANY_SALT'],
     }
     puppet.manifests_path = "puppet/manifests"
     puppet.module_path = "puppet/modules"
