@@ -17,9 +17,7 @@ define webapp::create () {
     group   => 'root',
     mode    => '0644',
     content => epp('webapp/webapp.apache.conf.epp', {
-      name   => $name,
-      domain => $::vagrant_guest_domain,
-      logdir => $::logdir,
+      name => $name,
     } ),
     require => Package['apache2'],
   }

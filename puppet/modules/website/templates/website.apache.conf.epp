@@ -5,8 +5,8 @@
   Order allow,deny
   Allow from all
 </Directory>
+<% if( $live_url ) { %>
 
-<% if(live_url) { %>
 # Proxying the wp-content directory
 <Directory "/srv/www/www-<%= $name %>/wp-content/uploads">
 <IfModule mod_rewrite.c>
@@ -16,34 +16,37 @@
   RewriteRule ^(.*) <%= $live_url %>/wp-content/uploads/$1 [L,P]
 </IfModule>
 </Directory>
+
 <% } %>
+<% if( $port ) { %>
 
 # the port based vhost
 Listen <%= $port %>
 <VirtualHost *:<%= $port %>>
 
   DocumentRoot "/srv/www/www-<%= $name %>"
-  ServerName <%= $name %>
+  # ServerName <%= $name %>
 
   ServerAdmin webmaster@localhost
 
-  ErrorLog <%= $logdir %>/www-<%= $name %>.error.log
-  CustomLog <%= $logdir %>/www-<%= $name %>.access.log combined
+  ErrorLog <%= $::logdir %>/www-<%= $name %>.error.log
+  CustomLog <%= $::logdir %>/www-<%= $name %>.access.log combined
 
 </VirtualHost>
+<% } %>
 
 # the name based vhost
 <VirtualHost *:<%= $::apache_http_port %>>
 
   DocumentRoot "/srv/www/www-<%= $name %>"
   ServerName <%= $name %>.dev
-  ServerAlias <%= $name %>.<%= $domain_name %>
+  ServerAlias <%= $name %>.<%= $::vagrant_guest_domain %>
   ServerAlias <%= $name %>.*.xip.io
 
   ServerAdmin webmaster@localhost
 
-  ErrorLog <%= $logdir %>/appsuite-<%= $name %>.error.log
-  CustomLog <%= $logdir %>/appsuite-<%= $name %>.access.log combined
+  ErrorLog <%= $::logdir %>/appsuite-<%= $name %>.error.log
+  CustomLog <%= $::logdir %>/appsuite-<%= $name %>.access.log combined
 
 </VirtualHost>
 

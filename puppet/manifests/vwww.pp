@@ -20,7 +20,9 @@ class { 'init': stage => opening_act }
 class { 'apache2::install': stage => main }
 class { 'php5::install': stage => main }
 if $::mysql_host {
-  class { 'phpmyadmin::install': stage => main }
+  if $::bretany_salt {
+    class { 'phpmyadmin::install': stage => main }
+  }
 }
 
 
