@@ -21,8 +21,8 @@ vagrant_name = File.basename(dir)
 vagrant_name = vagrant_name.gsub(/!\w|!d|!\-/, '-')
 
 # the potency of the VM
-v_cpus = 2
-v_memb = 1024
+v_cpus = (ENV['V_CPUS']) ? ENV['V_CPUS'] : 2
+v_memb = (ENV['V_MEMB']) ? ENV['V_MEMB'] : 1024
 
 # and lets go!
 Vagrant.configure(2) do |config|
@@ -35,7 +35,7 @@ Vagrant.configure(2) do |config|
 
   Vagrant.require_version ">= 1.8.0"
   config.vm.box = "ubuntu/trusty64"
-  config.vm.network :private_network, ip: ENV['VAGRANT_GUEST_IP']
+  config.vm.network :private_network, ip: (ENV['VAGRANT_GUEST_IP']) ? ENV['VAGRANT_GUEST_IP'] : "192.168.12.3"
   config.vm.hostname = vagrant_name + '.' + ENV['VAGRANT_GUEST_DOMAIN']
 
 
@@ -72,7 +72,8 @@ Vagrant.configure(2) do |config|
   domains_array = ["#{vagrant_name}.dev"]
   ## WWW-APPS
   appsuite = '' # for some reason I have to pass in strings and arrayify them in puppet
-  if apps = YAML.load_file('conf/apps.yaml')
+  if File.exists?('conf/apps.yaml')
+    apps = YAML.load_file('conf/apps.yaml')
     apps.each do |app|
       domains_array.push("#{app["name"]}.#{ENV['VAGRANT_GUEST_DOMAIN']}")
       config.vm.synced_folder "#{app["local_path"]}", "/srv/www/appsuite-#{app["name"]}", owner: "root", group: "root"
@@ -80,11 +81,14 @@ Vagrant.configure(2) do |config|
     end
     config.vm.network 'forwarded_port', guest: v_apache_http, host: v_apache_http
     config.vm.network 'forwarded_port', guest: v_apache_https, host: v_apache_https
+  else
+    puts('no apps found, did you create `conf/apps.yaml`?')
   end
 
   ## WWW-SITES
   websites = '' # for some reason I have to pass in strings and arrayify them in puppet
-  if sites = YAML.load_file('conf/sites.yaml')
+  if File.exists?('conf/sites.yaml')
+    sites = YAML.load_file('conf/sites.yaml')
     sites.each do |site|
       if site['port']
         config.vm.network 'forwarded_port', guest: site['port'], host: site['port']
@@ -93,11 +97,13 @@ Vagrant.configure(2) do |config|
       domains_array.push("#{site["name"]}.dev")
       websites = "#{websites} #{site["name"]},#{site["port"]},#{site["live_url"]}"
     end
+  else
+    puts('no sites found, did you create `conf/sites.yaml`?')
   end
 
   ## WWW-OTHER
   # phpmyadmin
-  if ENV['MYSQL_HOST']
+  if ENV['MYSQL_HOST'] && ENV['BRETANY_SALT']
     domains_array.push('phpmyadmin')
   end
 
