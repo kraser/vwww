@@ -149,9 +149,14 @@ Vagrant.configure(2) do |config|
     sudo service puppet restart
   SHELL
 
+  # APACHE SSLopenssl rsa -in server.key.org -out server.key
+  # http://www.akadia.com/services/ssh_test_certificate.html
+  if File.exists?('conf/ssl/server.key') && File.exists?('conf/ssl/server.crt')
+    puppet.facter.store('guestssl', true)
+  end
+
   # Provisioning
   config.vm.provision :puppet do |puppet|
-
     puppet.facter = {
       "apache_http_port" => v_apache_http,
       "apache_https_port" => v_apache_https,
