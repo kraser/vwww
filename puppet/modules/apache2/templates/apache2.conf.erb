@@ -68,8 +68,6 @@
 #
 #ServerRoot "/etc/apache2"
 
-# CHANGED
-# TODO: set apache servername to be what's set in vagrantfile
 ServerName "<%= @fqdn %>"
 
 #
@@ -178,6 +176,7 @@ Include ports.conf
 	Options Indexes FollowSymLinks
 	AllowOverride All
 	Require all granted
+	DirectoryIndex index.html index.htm index.php welcome.html
 </Directory>
 
 

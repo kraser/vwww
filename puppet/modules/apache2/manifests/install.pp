@@ -44,7 +44,6 @@ class apache2::install {
   apache2::load_module{ 'rewrite': }
   apache2::load_module{ 'proxy': }
   apache2::load_module{ 'proxy_http': }
-  apache2::load_module{ 'ssl': }
   apache2::load_module{ 'proxy_balancer': }
 
 }

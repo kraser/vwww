@@ -18,6 +18,7 @@ stage { 'encore': require => Stage['main'], }
 
 class { 'init': stage => opening_act }
 class { 'apache2::install': stage => main }
+class { 'apache2::ssl': stage => main }
 class { 'php5::install': stage => main }
 if $::mysql_host {
   if $::bretany_salt {
