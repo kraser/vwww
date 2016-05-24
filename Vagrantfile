@@ -20,15 +20,16 @@ vagrant_name = File.basename(dir)
 # replacing invalid hostname characters with a valid one
 vagrant_name = vagrant_name.gsub(/!\w|!d|!\-/, '-')
 
-# the potency of the VM
-v_cpus = (ENV['V_CPUS']) ? ENV['V_CPUS'] : 2
-v_memb = (ENV['V_MEMB']) ? ENV['V_MEMB'] : 1024
 
 # and lets go!
 Vagrant.configure(2) do |config|
 
   # set ENV vars with a .env file
   config.env.enable
+
+  # the potency of the VM
+  v_cpus = (ENV['V_CPUS']) ? ENV['V_CPUS'] : 2
+  v_memb = (ENV['V_MEMB']) ? ENV['V_MEMB'] : 1024
 
   v_apache_http = (ENV['APACHE_HTTP_PORT']) ? ENV['APACHE_HTTP_PORT'] : 8080
   v_apache_https = (ENV['APACHE_HTTPS_PORT']) ? ENV['APACHE_HTTPS_PORT'] : 8443
