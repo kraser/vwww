@@ -20,9 +20,18 @@ vagrant_name = File.basename(dir)
 # replacing invalid hostname characters with a valid one
 vagrant_name = vagrant_name.gsub(/!\w|!d|!\-/, '-')
 
-
 # and lets go!
 Vagrant.configure(2) do |config|
+  Vagrant.require_version ">= 1.8.0"
+  # https://michaelheap.com/vagrant-require-installed-plugins/
+  [
+    { :name => "vagrant-env", :version => ">= 0.0.3" },
+    { :name => "vagrant-ghost", :version => ">= 0.2.1" },
+  ].each do |plugin|
+    unless Vagrant.has_plugin?(plugin[:name], plugin[:version])
+      raise "#{plugin[:name]} #{plugin[:version]} is required. Please run `vagrant plugin install #{plugin[:name]}`"
+    end
+  end
 
   # set ENV vars with a .env file
   config.env.enable
@@ -34,11 +43,9 @@ Vagrant.configure(2) do |config|
   v_apache_http = (ENV['APACHE_HTTP_PORT']) ? ENV['APACHE_HTTP_PORT'] : 8080
   v_apache_https = (ENV['APACHE_HTTPS_PORT']) ? ENV['APACHE_HTTPS_PORT'] : 8443
 
-  Vagrant.require_version ">= 1.8.0"
   config.vm.box = "ubuntu/trusty64"
   config.vm.network :private_network, ip: (ENV['VAGRANT_GUEST_IP']) ? ENV['VAGRANT_GUEST_IP'] : "192.168.12.3"
   config.vm.hostname = vagrant_name + '.' + ENV['VAGRANT_GUEST_DOMAIN']
-
 
   config.vm.provider :virtualbox do |vm|
     vm.customize ["modifyvm", :id, "--cpus", v_cpus ]
@@ -83,7 +90,7 @@ Vagrant.configure(2) do |config|
     config.vm.network 'forwarded_port', guest: v_apache_http, host: v_apache_http
     config.vm.network 'forwarded_port', guest: v_apache_https, host: v_apache_https
   else
-    puts('no apps found, did you create `conf/apps.yaml`?')
+    warn('No apps found. Did you create `conf/apps.yaml`?')
   end
 
   ## WWW-SITES
@@ -99,7 +106,7 @@ Vagrant.configure(2) do |config|
       websites = "#{websites} #{site["name"]},#{site["port"]},#{site["live_url"]}"
     end
   else
-    puts('no sites found, did you create `conf/sites.yaml`?')
+    warn('No websites found. Did you create `conf/sites.yaml`?')
   end
 
   ## WWW-OTHER
@@ -130,6 +137,13 @@ Vagrant.configure(2) do |config|
 
   config.ghost.hosts = domains_array
 
+  # TODO: enable ssl
+  # APACHE SSLopenssl rsa -in server.key.org -out server.key
+  # http://www.akadia.com/services/ssh_test_certificate.html
+  # if File.exists?('conf/ssl/server.key') && File.exists?('conf/ssl/server.crt')
+  #   puppet.facter.store('guestssl', true)
+  # end
+
   # Some boxes come with puppet installed, others don't
   # so here we quickly install it.
   config.vm.provision "shell", inline: <<-SHELL
@@ -150,14 +164,9 @@ Vagrant.configure(2) do |config|
     sudo service puppet restart
   SHELL
 
-  # APACHE SSLopenssl rsa -in server.key.org -out server.key
-  # http://www.akadia.com/services/ssh_test_certificate.html
-  if File.exists?('conf/ssl/server.key') && File.exists?('conf/ssl/server.crt')
-    puppet.facter.store('guestssl', true)
-  end
-
   # Provisioning
   config.vm.provision :puppet do |puppet|
+
     puppet.facter = {
       "apache_http_port" => v_apache_http,
       "apache_https_port" => v_apache_https,
