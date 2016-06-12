@@ -19,8 +19,7 @@ class init {
   # Set the Timezone to something useful
   exec { 'set_time_zone':
     unless  => 'more /etc/timezone | grep Madrid',
-    command => 'echo "Europe/Madrid" | sudo tee /etc/timezone \
-    && dpkg-reconfigure --frontend noninteractive tzdata',
+    command => 'echo "Europe/Madrid" | sudo tee /etc/timezone && dpkg-reconfigure --frontend noninteractive tzdata',
   }
 
   # now let's update and get the latest packages
@@ -41,4 +40,9 @@ class init {
     ensure  => latest,
     require => Exec['apt-update'],
   }
+
+  # exec { 'install_deliver':
+  #   unless  => 'more /etc/timezone | grep Madrid',
+  #   command => 'git clone ',
+  # }
 }

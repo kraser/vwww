@@ -2,6 +2,7 @@
 # vi: set ft=ruby :
 
 # TODO: Setting env variables in guest
+# TODO: check site names to make sure that they are safe
 
 # Plugins Used
 # https://github.com/10up/vagrant-ghost
@@ -19,6 +20,7 @@ vagrant_dir = File.expand_path(File.dirname(__FILE__))
 vagrant_name = File.basename(dir)
 # replacing invalid hostname characters with a valid one
 vagrant_name = vagrant_name.gsub(/!\w|!d|!\-/, '-')
+
 
 # and lets go!
 Vagrant.configure(2) do |config|
@@ -82,6 +84,7 @@ Vagrant.configure(2) do |config|
   appsuite = '' # for some reason I have to pass in strings and arrayify them in puppet
   if File.exists?('conf/apps.yaml')
     apps = YAML.load_file('conf/apps.yaml')
+    puts 'apps.yaml loaded.'
     apps.each do |app|
       domains_array.push("#{app["name"]}.#{ENV['VAGRANT_GUEST_DOMAIN']}")
       config.vm.synced_folder "#{app["local_path"]}", "/srv/www/appsuite-#{app["name"]}", owner: "root", group: "root"
@@ -97,6 +100,7 @@ Vagrant.configure(2) do |config|
   websites = '' # for some reason I have to pass in strings and arrayify them in puppet
   if File.exists?('conf/sites.yaml')
     sites = YAML.load_file('conf/sites.yaml')
+    puts 'sites.yaml loaded.'
     sites.each do |site|
       if site['port']
         config.vm.network 'forwarded_port', guest: site['port'], host: site['port']
@@ -132,6 +136,7 @@ Vagrant.configure(2) do |config|
   # for mapping additional drives. If a file 'Customfile' exists in the same directory
   # as this Vagrantfile, it will be evaluated as ruby inline as it loads.
   if File.exists?(File.join(vagrant_dir,'Customfile')) then
+    puts "Customfile loaded."
     eval(IO.read(File.join(vagrant_dir,'Customfile')), binding)
   end
 
