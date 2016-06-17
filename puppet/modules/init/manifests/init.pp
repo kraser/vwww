@@ -40,4 +40,9 @@ class init {
     ensure  => latest,
     require => Exec['apt-update'],
   }
+
+  # exec { 'install_deliver':
+  #   unless  => 'more /etc/timezone | grep Madrid',
+  #   command => 'git clone ',
+  # }
 }
