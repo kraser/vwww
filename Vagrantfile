@@ -28,10 +28,18 @@ Vagrant.configure(2) do |config|
   # https://michaelheap.com/vagrant-require-installed-plugins/
   [
     { :name => "vagrant-env", :version => ">= 0.0.3" },
-    { :name => "vagrant-ghost", :version => ">= 0.2.1" },
   ].each do |plugin|
     unless Vagrant.has_plugin?(plugin[:name], plugin[:version])
       raise "#{plugin[:name]} #{plugin[:version]} is required. Please run `vagrant plugin install #{plugin[:name]}`"
+    end
+  end
+  [
+    { :name => "vagrant-ghost", :version => ">= 0.2.1" },
+    { :name => "vagrant-cachier", :version => ">= 1.2.1" },
+    { :name => "vagrant-vbguest", :version => ">= 0.11.0" },
+  ].each do |plugin|
+    unless Vagrant.has_plugin?(plugin[:name], plugin[:version])
+      warn "#{plugin[:name]} #{plugin[:version]} is recommended. Please run `vagrant plugin install #{plugin[:name]}`"
     end
   end
 
