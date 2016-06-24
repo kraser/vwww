@@ -63,22 +63,6 @@ Vagrant.configure(2) do |config|
     override.vm.box = "parallels/ubuntu-14.04"
   end
 
-  config.vm.provider :vmware_fusion do |vm, override|
-    vm.vmx["memsize"] = v_memb
-    vm.vmx["numvcpus"] = v_cpus
-    override.vm.box = "netsensia/ubuntu-trusty64"
-  end
-
-  config.vm.provider :vmware_workstation do |vm, override|
-    override.vm.box = "netsensia/ubuntu-trusty64"
-  end
-
-  config.vm.provider :hyperv do |vm, override|
-    vm.memory = v_memb
-    vm.cpus = v_cpus
-    override.vm.box = "ericmann/trusty64"
-  end
-
   domains_array = ["#{vagrant_name}.dev"]
   ## WWW-APPS
   appsuite = '' # for some reason I have to pass in strings and arrayify them in puppet
