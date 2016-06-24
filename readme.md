@@ -28,6 +28,10 @@ The server itself is controlled by puppet. **DO NOT MAKE SERVER CONFIGURATION CH
 
 Apache ports can be customized to be anything you want in the `.env` file by setting `APACHE_HTTP_PORT="80"` and `APACHE_HTTPS_PORT="443"`
 
+## linting
+
+managed by npm and requires that `puppet-lint` be in your path (hint: `gem install puppet-lint`) as well as `ruby`. lint running `npm test`.
+
 ## sites v. apps
 
 There are two main differences between sites and apps. The most important of which is that sites are linked at `site/html` and can't have any source above that. Apps are expected to have an html folder in them.

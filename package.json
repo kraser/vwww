@@ -1,0 +1,25 @@
+{
+  "name": "vwww",
+  "private": true,
+  "version": "1.0.0",
+  "description": "A flexible, minimal vagrant webserver",
+  "main": "Vagrantfile",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/mmcmedia/mmc-app-suite-vagrant.git"
+  },
+  "keywords": [
+    "vagrant",
+    "webserver"
+  ],
+  "author": "James Fehr <jamiefehr@fastmail.es> (http://hello.fgvl.co)",
+  "license": "MIT",
+  "homepage": "https://bitbucket.org/mmcmedia/mmc-app-suite-vagrant#readme",
+  "devDependencies": {},
+  "scripts": {
+    "test": "npm run lint:puppet && npm run lint:vagrantfile && npm run lint:customfile",
+    "lint:puppet": "puppet-lint puppet/**/*.pp",
+    "lint:vagrantfile": "ruby -wc Vagrantfile",
+    "lint:customfile": "ruby -wc Customfile"
+  }
+}
