@@ -8,7 +8,7 @@ class nodejs::install {
     require => Package['software-properties-common', 'build-essential'],
   }
 
-  package { 'nodejs':
+  package { ['nodejs', 'npm']:
     ensure  => installed,
     require => Exec['node_ppa', 'apt-update'],
   }
@@ -24,7 +24,7 @@ class nodejs::install {
     command => 'npm install -g bower',
     require => [
       Exec['apt-update'],
-      Package['nodejs'],
+      Package['npm'],
     ],
   }
 
@@ -33,7 +33,7 @@ class nodejs::install {
       command => 'npm install -g gulp',
       require => [
         Exec['apt-update'],
-        Package['nodejs'],
+        Package['npm'],
       ],
     }
 
@@ -42,7 +42,7 @@ class nodejs::install {
       command => 'npm install -g grunt',
       require => [
         Exec['apt-update'],
-        Package['nodejs'],
+        Package['npm'],
       ],
     }
 }
