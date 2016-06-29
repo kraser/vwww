@@ -3,7 +3,7 @@
 class php5::install {
 
     # the php packages we need.
-    package { 'php5-cli': require => Exec['apt-update'], }
+    package { 'php5-cli': require => Exec['apt_update'], }
     package { [
         'libapache2-mod-php5',
         'php-pear',
@@ -24,7 +24,7 @@ class php5::install {
       ]:
       ensure  => latest,
       require => [
-        Exec['apt-update'],
+        Exec['apt_update'],
         Package[
           'apache2',
           'curl',
@@ -46,7 +46,7 @@ class php5::install {
         'gettext',
       ]:
       ensure  => latest,
-      require => Exec['apt-update']
+      require => Exec['apt_update']
     }
 
     file { '/var/www/html/index.php':

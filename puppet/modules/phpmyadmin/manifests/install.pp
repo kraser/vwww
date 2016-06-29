@@ -4,7 +4,7 @@ class phpmyadmin::install {
   package { 'phpmyadmin':
     ensure  => present,
     require => [
-      Exec['apt-update'],
+      Exec['apt_update'],
       Package['php5', 'apache2'],
     ]
   }

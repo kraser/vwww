@@ -4,7 +4,7 @@ class apache2::install {
 
   package { 'apache2':
     ensure  => latest,
-    require => Exec['apt-update'],
+    require => Exec['apt_update'],
   }
 
   service { 'apache2':

@@ -23,7 +23,7 @@ class init {
   }
 
   # now let's update and get the latest packages
-  exec { 'apt-update':
+  exec { 'apt_update':
     command => 'aptitude update --quiet --assume-yes',
     require => Exec['ondrejppa_php56'],
   }
@@ -38,7 +38,7 @@ class init {
       'git',
     ]:
     ensure  => latest,
-    require => Exec['apt-update'],
+    require => Exec['apt_update'],
   }
 
   exec { 'clone_deliver':
@@ -47,5 +47,6 @@ class init {
     require => Package['git']
   }
   # this command is linked in the bash_profile that is in this project
+  #TODO: this needs to track with updates to deliver
 
 }
