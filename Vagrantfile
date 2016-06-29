@@ -21,7 +21,6 @@ vagrant_name = File.basename(dir)
 # replacing invalid hostname characters with a valid one
 vagrant_name = vagrant_name.gsub(/!\w|!d|!\-/, '-')
 
-
 # and lets go!
 Vagrant.configure(2) do |config|
   Vagrant.require_version ">= 1.8.0"
@@ -133,6 +132,9 @@ Vagrant.configure(2) do |config|
   end
 
   config.ghost.hosts = domains_array
+
+  # adds a ~/.deliver/bin to the $PATH and a number of other shortcuts
+  config.vm.provision "file", source: "Puppet/Files/bash_profile", destination: ".bash_profile"
 
   # TODO: enable ssl
   # APACHE SSLopenssl rsa -in server.key.org -out server.key

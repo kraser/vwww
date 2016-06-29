@@ -32,6 +32,10 @@ Apache ports can be customized to be anything you want in the `.env` file by set
 
 managed by npm and requires that `puppet-lint` be in your path (hint: `gem install puppet-lint`) as well as `ruby`. lint running `npm test`.
 
+## SSH
+
+SSH forwarding means that you can use this virtual machine just like you would your local machine, but to make it work you need to make sure that `ssh-agent` is running. Help from [GitHub](https://help.github.com/articles/working-with-ssh-key-passphrases/). 
+
 ## sites v. apps
 
 There are two main differences between sites and apps. The most important of which is that sites are linked at `site/html` and can't have any source above that. Apps are expected to have an html folder in them.

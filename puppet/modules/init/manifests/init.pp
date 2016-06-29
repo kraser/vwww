@@ -41,8 +41,11 @@ class init {
     require => Exec['apt-update'],
   }
 
-  # exec { 'install_deliver':
-  #   unless  => 'more /etc/timezone | grep Madrid',
-  #   command => 'git clone ',
-  # }
+  exec { 'clone_deliver':
+    creates => '/home/vagrant/.deliver',
+    command => 'git clone https://github.com/videoMonkey/deliver.git /home/vagrant/.deliver',
+    require => Package['git']
+  }
+  # this command is linked in the bash_profile that is in this project
+
 }
