@@ -70,6 +70,10 @@ Vagrant.configure(2) do |config|
     override.vm.box = "parallels/ubuntu-14.04"
   end
 
+  config.vm.network 'forwarded_port', guest: v_apache_http, host: v_apache_http
+  config.vm.network 'forwarded_port', guest: v_apache_https, host: v_apache_https
+  config.vm.network 'forwarded_port', guest: 35729, host: 35729 # forwarding live-reload
+
   domains_array = ["#{vagrant_name}.dev"]
   ## WWW-APPS
   appsuite = '' # for some reason I have to pass in strings and arrayify them in puppet
@@ -81,8 +85,6 @@ Vagrant.configure(2) do |config|
       config.vm.synced_folder "#{app["local_path"]}", "/srv/www/appsuite-#{app["name"]}", owner: "root", group: "root"
       appsuite = "#{appsuite} #{app["name"]}"
     end
-    config.vm.network 'forwarded_port', guest: v_apache_http, host: v_apache_http
-    config.vm.network 'forwarded_port', guest: v_apache_https, host: v_apache_https
   else
     warn('No apps found. Did you create `conf/apps.yaml`?')
   end
