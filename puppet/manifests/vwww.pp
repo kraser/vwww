@@ -16,6 +16,7 @@ Exec { path => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/',
 stage { 'opening_act': before => Stage['main'], }
 stage { 'encore': require => Stage['main'], }
 
+# make vwww
 class { 'init': stage => opening_act }
 class { 'apache2::install': stage => main }
 class { 'apache2::ssl': stage => main }
@@ -28,10 +29,10 @@ if $::mysql_host {
   }
 }
 
-
 # these are passed in from the puppet.facter line in the vagrantfile
 $www_apps = split($::appsuite, ' ')
 $www_sites = split($::websites, ' ')
+$sites = split($::vwww, ' ')
 
 each($www_apps) |$app| { webapp::create{ $app: } }
 each($www_sites) |$site| {
@@ -39,5 +40,14 @@ each($www_sites) |$site| {
   website::create{ $www[0]:
     port     => $www[1],
     live_url => $www[2],
+  }
+}
+
+each($sites) |$site| {
+  $www = split($site, ',')
+  vwww::create{ $www[0]:
+    port        => $www[1],
+    live_url    => $www[2],
+    public_html => $www[3],
   }
 }

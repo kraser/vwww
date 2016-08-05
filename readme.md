@@ -34,10 +34,11 @@ managed by npm and requires that `puppet-lint` be in your path (hint: `gem insta
 
 ## SSH
 
-SSH forwarding means that you can use this virtual machine just like you would your local machine, but to make it work you need to make sure that `ssh-agent` is running. Help from [GitHub](https://help.github.com/articles/working-with-ssh-key-passphrases/). 
+SSH forwarding means that you can use this virtual machine just like you would your local machine, but to make it work you need to make sure that `ssh-agent` is running. Help from [GitHub](https://help.github.com/articles/working-with-ssh-key-passphrases/).
 
 ## sites v. apps
 
+**(deprecated, use `vwww.yaml`)**
 There are two main differences between sites and apps. The most important of which is that sites are linked at `site/html` and can't have any source above that. Apps are expected to have an html folder in them.
 
 The domains and ports your sites are mapped to can be read from the output of `vagrant up`.

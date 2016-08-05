@@ -1,0 +1,57 @@
+# directory options
+<Directory "/srv/www/<%= $name %>">
+  Options Indexes FollowSymLinks
+  AllowOverride All
+  Order allow,deny
+  Allow from all
+</Directory>
+<% if( $live_url ) { %>
+
+# Proxying the wp-content directory
+<Directory "/srv/www/<%= $name %>/wp-content/uploads">
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.*) <%= $live_url %>/wp-content/uploads/$1 [L,P]
+</IfModule>
+</Directory>
+
+<% } %>
+<% if( $port ) { %>
+
+# the port based vhost
+Listen <%= $port %>
+<VirtualHost *:<%= $port %>>
+
+  DocumentRoot "/srv/www/<%= $name %>"
+  # ServerName <%= $name %>
+
+  ServerAdmin webmaster@localhost
+
+  ErrorLog <%= $::logdir %>/<%= $name %>.error.log
+  CustomLog <%= $::logdir %>/<%= $name %>.access.log combined
+
+</VirtualHost>
+<% } %>
+
+# the name based vhost
+<VirtualHost *:<%= $::apache_http_port %>>
+
+  <% if( $public_html) %>
+  DocumentRoot "/srv/www/<%= $name %>/<%= $public_html %>"
+  <% } else { %>
+  DocumentRoot "/srv/www/<%= $name %>"
+  <% } %>
+  ServerName  <%= $name %>.dev
+  ServerAlias <%= $name %>.*.xip.io
+  ServerAlias <%= $name %>.<%= $::vagrant_guest_domain %>
+
+  ServerAdmin webmaster@localhost
+
+  ErrorLog <%= $::logdir %>/appsuite-<%= $name %>.error.log
+  CustomLog <%= $::logdir %>/appsuite-<%= $name %>.access.log combined
+
+</VirtualHost>
+
+# vim: syntax=apache ts=4 sw=4 sts=4 sr noet
