@@ -62,6 +62,17 @@ Vagrant.configure(2) do |config|
     override.vm.box = "parallels/ubuntu-14.04"
   end
 
+  config.vm.provider :hyperv do |vm, override|
+    ### Notes on using hyperv
+    # 1. you have to create your own virtual switch (https://msdn.microsoft.com/en-us/virtualization/hyperv_on_windows/user_guide/setup_nat_network)
+    # 2. must be started from an admin level powershell
+    # 3. that powershell needs an ssh executeable installed (try git-for-windows, use option three overwriting find.exe)
+    vm.memory = v_memb
+    vm.cpus = v_cpus
+    vm.vmname = vagrant_name
+    override.vm.box = "ericmann/trusty64"
+  end
+
   config.vm.network 'forwarded_port', guest: v_apache_http, host: v_apache_http
   config.vm.network 'forwarded_port', guest: v_apache_https, host: v_apache_https
   config.vm.network 'forwarded_port', guest: 35729, host: 35729 # forwarding live-reload
@@ -169,6 +180,8 @@ Vagrant.configure(2) do |config|
   #   puppet.facter.store('guestssl', true)
   # end
 
+  # TODO: Setting env variables in guest
+
   # Some boxes come with puppet installed, others don't
   # so here we quickly install it.
   config.vm.provision "shell", inline: <<-SHELL
@@ -192,7 +205,6 @@ Vagrant.configure(2) do |config|
   # Provisioning
   config.vm.provision :puppet do |puppet|
     puppet.facter = {
-      # "ip_addrs" => ip_addrs,
       "apache_http_port" => v_apache_http,
       "apache_https_port" => v_apache_https,
       "vagrant_guest_domain" => ENV['VAGRANT_GUEST_DOMAIN'],

@@ -5,7 +5,7 @@
   Order allow,deny
   Allow from all
 </Directory>
-<% if( $live_url ) { %>
+<% if( $live_url != "" ) { %>
 
 # Proxying the wp-content directory
 <Directory "/srv/www/<%= $name %>/wp-content/uploads">
@@ -17,8 +17,7 @@
 </IfModule>
 </Directory>
 
-<% } %>
-<% if( $port ) { %>
+<% } %><% if( $port != "" ) { %>
 
 # the port based vhost
 Listen <%= $port %>
@@ -38,7 +37,7 @@ Listen <%= $port %>
 # the name based vhost
 <VirtualHost *:<%= $::apache_http_port %>>
 
-  <% if( $public_html) %>
+  <% if( $public_html != "" ) { %>
   DocumentRoot "/srv/www/<%= $name %>/<%= $public_html %>"
   <% } else { %>
   DocumentRoot "/srv/www/<%= $name %>"
