@@ -19,13 +19,14 @@ Vagrant.configure(2) do |config|
   # https://michaelheap.com/vagrant-require-installed-plugins/
   [
     { :name => "vagrant-env", :version => ">= 0.0.3" },
+    # you can also edit your networks dns to achieve the effect of vagrant-ghost
+    { :name => "vagrant-ghost", :version => ">= 0.2.1" },
   ].each do |plugin|
     unless Vagrant.has_plugin?(plugin[:name], plugin[:version])
       raise "ERROR: #{plugin[:name]} #{plugin[:version]} is required. Please run `vagrant plugin install #{plugin[:name]}`"
     end
   end
   [
-    { :name => "vagrant-ghost", :version => ">= 0.2.1" },
     { :name => "vagrant-cachier", :version => ">= 1.2.1" },
     { :name => "vagrant-vbguest", :version => ">= 0.11.0" },
   ].each do |plugin|
@@ -64,9 +65,11 @@ Vagrant.configure(2) do |config|
 
   config.vm.provider :hyperv do |vm, override|
     ### Notes on using hyperv
-    # 1. you have to create your own virtual switch (https://msdn.microsoft.com/en-us/virtualization/hyperv_on_windows/user_guide/setup_nat_network)
+    # 1. you have to create your own virtual switch, just create a generic, public/bridged network (this is very insecure)
     # 2. must be started from an admin level powershell
     # 3. that powershell needs an ssh executeable installed (try git-for-windows, use option three overwriting find.exe)
+    # 4. edit VAGRANT_GUEST_IP to match the assigned IP address so that vagrant-ghost can correctly modify your hosts file.
+    # TODO: figure out hyperv [NAT config](https://msdn.microsoft.com/en-us/virtualization/hyperv_on_windows/user_guide/setup_nat_network)
     vm.memory = v_memb
     vm.cpus = v_cpus
     vm.vmname = vagrant_name

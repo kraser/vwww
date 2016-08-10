@@ -23,6 +23,8 @@ class { 'apache2::ssl': stage => main }
 class { 'php5::install': stage => main }
 # class { 'php5::composer': stage => main }
 class { 'nodejs::install': stage => main }
+# TODO: empty $:: variable are causing warnings in the output,
+# I would like to figure out how to stop that...
 if $::mysql_host {
   if $::bretany_salt {
     class { 'phpmyadmin::install': stage => main }
