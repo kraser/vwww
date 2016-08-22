@@ -39,6 +39,9 @@ SSH forwarding means that you can use this virtual machine just like you would y
 ## sites v. apps
 
 **(deprecated, use `vwww.yaml`)**
+
+[vwww.yaml example](https://gist.github.com/videoMonkey/cb776ff3f121a1c2fa28294891620da7). Basic c
+
 There are two main differences between sites and apps. The most important of which is that sites are linked at `site/html` and can't have any source above that. Apps are expected to have an html folder in them.
 
 The domains and ports your sites are mapped to can be read from the output of `vagrant up`.
