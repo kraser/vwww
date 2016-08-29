@@ -17,7 +17,7 @@
 </IfModule>
 </Directory>
 
-<% } %><% if( $port != "" ) { %>
+<% } %><% if( $port =~ /^\d+/ ) { %>
 
 # the port based vhost
 Listen <%= $port %>

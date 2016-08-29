@@ -69,7 +69,7 @@ Vagrant.configure(2) do |config|
     # 2. must be started from an admin level powershell
     # 3. that powershell needs an ssh executeable installed (try git-for-windows, use option three overwriting find.exe)
     # 4. edit VAGRANT_GUEST_IP to match the assigned IP address so that vagrant-ghost can correctly modify your hosts file.
-    # TODO: figure out hyperv [NAT config](https://msdn.microsoft.com/en-us/virtualization/hyperv_on_windows/user_guide/setup_nat_network)
+    # TODO: figure out hyperv [NAT config](https://msdn.microsoft.com/en-us/virtualization/hyperv_on_windows/user_guide/setup_nat_network), https://blog.areflyen.no/2012/10/10/setting-up-internet-access-for-hyper-v-with-nat-in-windows-8/ http://thomasvochten.com/archive/2014/01/hyper-v-nat/
     vm.memory = v_memb
     vm.cpus = v_cpus
     vm.vmname = vagrant_name
