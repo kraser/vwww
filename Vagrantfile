@@ -13,6 +13,12 @@ vagrant_dir = File.expand_path(File.dirname(__FILE__))
 # vagrant_name = vagrant_name.gsub(/!\w|!d|!\-/, '-')
 vagrant_name = 'vwww'
 
+def is_valid_domain(name)
+  # I know that hyphens and underscores can be valid, but I'm not allowing
+  # them for simplicities sake.
+  return name =~ /^([a-zA-Z0-9]{2,60}\.?){2,6}$/
+end
+
 # and lets go!
 Vagrant.configure(2) do |config|
   Vagrant.require_version ">= 1.8.0"
@@ -164,9 +170,9 @@ Vagrant.configure(2) do |config|
     eval(IO.read(File.join(vagrant_dir,'Customfile')), binding)
   end
 
-  # TODO: check domains for validity
-  domains_array.each do |domain|
-    unless domain
+  domains_array.each do |name|
+    unless is_valid_domain(name)
+      raise "Error: #{name} is not a valid domain name"
     end
   end
   if Vagrant.has_plugin?("vagrant-ghost")
