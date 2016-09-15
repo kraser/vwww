@@ -16,6 +16,12 @@ class init {
     require => Package['software-properties-common'],
   }
 
+exec { 'gitppa':
+  unless  => 'ls /etc/apt/sources.list.d | grep git-core-ppa',
+  command => 'add-apt-repository -y ppa:git-core/ppa && apt-key update',
+  require => Package['software-properties-common'],
+}
+
   # Set the Timezone to something useful
   exec { 'set_time_zone':
     unless  => 'more /etc/timezone | grep Madrid',
@@ -25,7 +31,7 @@ class init {
   # now let's update and get the latest packages
   exec { 'apt_update':
     command => 'aptitude update --quiet --assume-yes',
-    require => Exec['ondrejppa_php56'],
+    require => Exec['ondrejppa_php56', 'gitppa'],
   }
 
   # and then get the other essentials
