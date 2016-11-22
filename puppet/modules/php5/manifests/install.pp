@@ -56,25 +56,25 @@ class php5::install {
       ensure  => present,
       content => '<h1>VWWW</h1><?php phpinfo();',
       mode    => '0644',
-      require => Package['apache2', 'php5.6-cli']
+      require => Package['apache2', 'php5.6']
     }
 
     file { '/var/www/html/index.html':
       ensure  => absent,
       require => [
-        Package['apache2', 'php5.6-cli'],
+        Package['apache2', 'php5.6'],
         File['/var/www/html/index.php'],
       ],
     }
 
     file { 'php.ini':
       ensure  => present,
-      name    => '/etc/php5/apache2/php.ini',
+      name    => '/etc/php/5.6/apache2/php.ini',
       owner   => 'root',
       group   => 'root',
       mode    => '0644',
       source  => 'puppet:///modules/php5/php.ini',
-      require => Package['apache2', 'php5.6-cli'],
+      require => Package['apache2', 'php5.6'],
       notify  => Service['apache2'],
     }
 

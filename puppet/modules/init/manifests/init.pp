@@ -47,7 +47,7 @@ exec { 'git_ppa':
     require => Exec['apt_update'],
   }
 
-  exec { 'clone_deliver':
+  exec { 'install_deliver':
     creates => '/home/vagrant/.deliver',
     command => 'git clone https://github.com/videoMonkey/deliver.git /home/vagrant/.deliver',
     require => Package['git']
