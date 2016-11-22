@@ -1,2 +1,0 @@
-# phpMyAdmin
-class phpmyadmin{}

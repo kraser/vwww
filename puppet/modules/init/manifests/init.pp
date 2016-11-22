@@ -10,13 +10,13 @@ class init {
   }
 
   # this is the php that we want
-  exec { 'ondrejppa_php56':
-    unless  => 'ls /etc/apt/sources.list.d | grep ondrej-php5-5_6',
-    command => 'add-apt-repository -y ppa:ondrej/php5-5.6 && apt-key update',
+  exec { 'ondrejphp_ppa':
+    unless  => 'ls /etc/apt/sources.list.d | grep ondrej-php',
+    command => 'add-apt-repository -y ppa:ondrej/php && apt-key update',
     require => Package['software-properties-common'],
   }
 
-exec { 'gitppa':
+exec { 'git_ppa':
   unless  => 'ls /etc/apt/sources.list.d | grep git-core-ppa',
   command => 'add-apt-repository -y ppa:git-core/ppa && apt-key update',
   require => Package['software-properties-common'],
@@ -31,7 +31,7 @@ exec { 'gitppa':
   # now let's update and get the latest packages
   exec { 'apt_update':
     command => 'aptitude update --quiet --assume-yes',
-    require => Exec['ondrejppa_php56', 'gitppa'],
+    require => Exec['ondrejphp_ppa', 'git_ppa'],
   }
 
   # and then get the other essentials
