@@ -1,7 +1,5 @@
 # TODO: autogenerate ssl certificate
 # TODO: autogenerate a welcome page highlighting hosted sites
-# TODO: phpmyadmin host_ip from configvar
-# TODO: phpmyadmin randomly generate salt http://stackoverflow.com/questions/2513734/generating-a-salt-in-php
 # TODO: error check for website without live_url
 
 # puppet style guide: https://docs.puppet.com/guides/style_guide.html
@@ -21,15 +19,9 @@ class { 'init': stage => opening_act }
 class { 'apache2::install': stage => main }
 class { 'apache2::ssl': stage => main }
 class { 'php5::install': stage => main }
-# class { 'php5::composer': stage => main }
 class { 'nodejs::install': stage => main }
 # TODO: empty $:: variable are causing warnings in the output,
 # I would like to figure out how to stop that...
-if $::mysql_host {
-  if $::bretany_salt {
-    class { 'phpmyadmin::install': stage => main }
-  }
-}
 
 # these are passed in from the puppet.facter line in the vagrantfile
 $www_apps = split($::appsuite, ' ')

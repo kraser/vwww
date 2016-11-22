@@ -7,10 +7,6 @@ require 'yaml'
 ENV['LC_ALL'] = 'en_US.UTF-8'
 
 vagrant_dir = File.expand_path(File.dirname(__FILE__))
-# dir = Dir.pwd
-# vagrant_name = File.basename(dir)
-# replacing invalid hostname characters with a valid one
-# vagrant_name = vagrant_name.gsub(/!\w|!d|!\-/, '-')
 vagrant_name = 'vwww'
 
 def is_valid_domain(name)
@@ -84,7 +80,7 @@ Vagrant.configure(2) do |config|
 
   config.vm.network 'forwarded_port', guest: v_apache_http, host: v_apache_http
   config.vm.network 'forwarded_port', guest: v_apache_https, host: v_apache_https
-  config.vm.network 'forwarded_port', guest: 35729, host: 35729 # forwarding live-reload
+  config.vm.network 'forwarded_port', guest: 35729, host: 35729 # forwarding live-reload # TODO: livereload in the vm?
 
   domains_array = ["vwww.dev"]
 
@@ -130,24 +126,25 @@ Vagrant.configure(2) do |config|
   if File.exists?('conf/vwww.yaml')
     sites = YAML.load_file('conf/vwww.yaml')
     puts 'Loaded `conf/vwww.yaml`'
-    sites.each do |site|
-      if site['port']
-        config.vm.network 'forwarded_port', guest: site['port'], host: site['port']
+    unless sites
+      warn "WARNING: `conf/vwww.yaml` has no vhosts, this is going to be a useless webserver."
+    else
+      sites.each do |site|
+        if site['port']
+          config.vm.network 'forwarded_port', guest: site['port'], host: site['port']
+        end
+        config.vm.synced_folder "#{site["local_path"]}", "/srv/www/#{site["name"]}", owner: "root", group: "root"
+        domains_array.push("#{site["name"]}.dev")
+        domains_array.push("#{site["name"]}.#{ENV['VAGRANT_GUEST_DOMAIN']}")
+        vwww = vwww + " #{site["name"]},#{site["port"]},#{site["live_url"]},#{site['public_html']}"
       end
-      config.vm.synced_folder "#{site["local_path"]}", "/srv/www/#{site["name"]}", owner: "root", group: "root"
-      domains_array.push("#{site["name"]}.dev")
-      domains_array.push("#{site["name"]}.#{ENV['VAGRANT_GUEST_DOMAIN']}")
-      vwww = vwww + " #{site["name"]},#{site["port"]},#{site["live_url"]},#{site['public_html']}"
     end
   else
     warn('No sites found. Did you create `conf/vwww.yaml`?')
   end
 
   ## WWW-OTHER
-  # phpmyadmin
-  if ENV['MYSQL_HOST'] && ENV['BRETANY_SALT']
-    domains_array.push('phpmyadmin')
-  end
+  # TODO: configure phpmyadmin? is that within the scope of the project?
 
   # SSH Agent Forwarding
   # Enable agent forwarding on vagrant ssh commands. This allows you to use ssh keys
@@ -175,6 +172,7 @@ Vagrant.configure(2) do |config|
       raise "Error: #{name} is not a valid domain name"
     end
   end
+
   if Vagrant.has_plugin?("vagrant-ghost")
     config.ghost.hosts = domains_array
   end

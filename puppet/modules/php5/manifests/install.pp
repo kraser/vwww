@@ -3,24 +3,27 @@
 class php5::install {
 
     # the php packages we need.
-    package { 'php5-cli': require => Exec['apt_update'], }
+    package { 'php5.6-cli':
+      require => Exec['apt_update'],
+    }
+
     package { [
-        'libapache2-mod-php5',
+    #     'libapache2-mod-php5',
         'php-pear',
-        'php5',
-        'php5-apcu',
-        'php5-dev',
-        'php5-common',
-        'php5-curl',
-        'php5-gd',
-        'php5-imagick',
-        'php5-imap',
-        'php5-ldap',
-        'php5-memcache',
-        'php5-mcrypt',
-        'php5-mysql',
-        'php5-redis',
-        'php5-xdebug',
+        'php5.6',
+        'php5.6-apcu',
+        'php5.6-common',
+        'php5.6-curl',
+        'php5.6-dev',
+        'php5.6-gd',
+        'php5.6-imagick',
+        'php5.6-imap',
+        'php5.6-ldap',
+        'php5.6-memcache',
+        'php5.6-mcrypt',
+        'php5.6-mysql',
+        'php5.6-redis',
+        'php5.6-xdebug',
       ]:
       ensure  => latest,
       require => [
@@ -30,7 +33,7 @@ class php5::install {
           'curl',
           'imagemagick',
           'memcached',
-          'php5-cli'
+          'php5.6-cli'
         ],
       ],
       # apparently restarting apache reloads the modules list?
@@ -53,13 +56,13 @@ class php5::install {
       ensure  => present,
       content => '<h1>VWWW</h1><?php phpinfo();',
       mode    => '0644',
-      require => Package['apache2', 'php5']
+      require => Package['apache2', 'php5.6-cli']
     }
 
     file { '/var/www/html/index.html':
       ensure  => absent,
       require => [
-        Package['apache2', 'php5'],
+        Package['apache2', 'php5.6-cli'],
         File['/var/www/html/index.php'],
       ],
     }
@@ -71,7 +74,7 @@ class php5::install {
       group   => 'root',
       mode    => '0644',
       source  => 'puppet:///modules/php5/php.ini',
-      require => Package['apache2', 'php5'],
+      require => Package['apache2', 'php5.6-cli'],
       notify  => Service['apache2'],
     }
 
