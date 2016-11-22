@@ -9,14 +9,14 @@ This one offers:
 
 ## getting started
 
+0. Clone this repository.
 1. install [VirtualBox](http://www.virtualbox.org) (or any other vagrant supporter provider like vmware or hyper-v)
 2. install [Vagrant](https://www.vagrantup.com)
 3. install `vagrant-ghost`
 4. install `vagrant-env`
 5. create a `.env` file at the root of this project. this file must include settings for `VAGRANT_GUEST_IP="192.168.12.3"` and `VAGRANT_GUEST_DOMAIN="example.com"`, they are used for creating the apache configs
-6. add apps to `conf/apps.yaml` ([example](https://gist.github.com/videoMonkey/1b2a2bc4548c51f2f18b76b8d38e8c0b))
-7. and optionally add sites to `conf/sites.yaml` ([example](https://gist.github.com/videoMonkey/3c08735d8718f37eab25408cf2ccb336))
-8. run `vagrant up`
+6. add apps and or sites to `conf/vwww.yaml` ([example](https://gist.github.com/videoMonkey/cb776ff3f121a1c2fa28294891620da7))
+7. run `vagrant up`
 
 You should eventually be able to go to [vwww.dev:8080](http://vwww.dev:8080) and see that it's all working.
 
